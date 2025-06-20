@@ -1,6 +1,7 @@
 use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
+use std::path::Path;
 use tauri::{AppHandle, Emitter, Manager};
 use tokio::process::Command as TokioCommand;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -23,9 +24,44 @@ pub struct LogLine {
 
 type ActiveStreams = Arc<Mutex<HashMap<String, bool>>>;
 
+// Function to find the container CLI binary
+fn find_container_cli() -> Result<String, String> {
+    // Common installation paths for container CLI
+    let paths = vec![
+        "/usr/local/bin/container",
+        "/opt/homebrew/bin/container",
+        "/usr/bin/container",
+        "container", // Fallback to PATH
+    ];
+    
+    for path in paths {
+        if path == "container" {
+            // Try using PATH for the fallback
+            match Command::new("which").arg("container").output() {
+                Ok(output) if output.status.success() => {
+                    let found_path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                    if !found_path.is_empty() && Path::new(&found_path).exists() {
+                        return Ok(found_path);
+                    }
+                }
+                _ => continue,
+            }
+        } else {
+            // Check direct path
+            if Path::new(path).exists() {
+                return Ok(path.to_string());
+            }
+        }
+    }
+    
+    Err("Apple Container CLI not found. Please install it from https://github.com/apple/container/releases".to_string())
+}
+
 #[tauri::command]
 async fn run_container_command(args: Vec<String>) -> Result<CommandResult, String> {
-    let output = Command::new("container")
+    let container_cli = find_container_cli()?;
+    
+    let output = Command::new(&container_cli)
         .args(&args)
         .output()
         .map_err(|e| format!("Failed to execute command: {}", e))?;
@@ -44,8 +80,10 @@ async fn run_container_command(args: Vec<String>) -> Result<CommandResult, Strin
 async fn run_container_command_with_stdin(args: Vec<String>, stdin: String) -> Result<CommandResult, String> {
     use std::process::Stdio;
     use std::io::Write;
+    
+    let container_cli = find_container_cli()?;
 
-    let mut child = Command::new("container")
+    let mut child = Command::new(&container_cli)
         .args(&args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -100,7 +138,15 @@ async fn stream_container_logs(
         }
         args.push(container_name_clone);
 
-        let mut cmd = TokioCommand::new("container")
+        let container_cli = match find_container_cli() {
+            Ok(cli) => cli,
+            Err(e) => {
+                eprintln!("Failed to find container CLI: {}", e);
+                return;
+            }
+        };
+
+        let mut cmd = TokioCommand::new(&container_cli)
             .args(&args)
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
@@ -179,7 +225,9 @@ async fn stop_log_stream(app_handle: AppHandle, stream_id: String) -> Result<(),
 
 #[tauri::command]
 async fn get_container_status() -> Result<Vec<serde_json::Value>, String> {
-    let output = Command::new("container")
+    let container_cli = find_container_cli()?;
+    
+    let output = Command::new(&container_cli)
         .args(&["ls", "-a", "--format", "json"])
         .output()
         .map_err(|e| format!("Failed to execute command: {}", e))?;
@@ -194,6 +242,51 @@ async fn get_container_status() -> Result<Vec<serde_json::Value>, String> {
     match serde_json::from_str::<Vec<serde_json::Value>>(&stdout) {
         Ok(containers) => Ok(containers),
         Err(e) => Err(format!("Failed to parse JSON: {}", e))
+    }
+}
+
+#[tauri::command]
+async fn check_container_cli() -> Result<serde_json::Value, String> {
+    match find_container_cli() {
+        Ok(cli_path) => {
+            // Try to get version info
+            match Command::new(&cli_path).arg("--version").output() {
+                Ok(output) if output.status.success() => {
+                    let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                    Ok(serde_json::json!({
+                        "available": true,
+                        "path": cli_path,
+                        "version": version,
+                        "error": null
+                    }))
+                }
+                Ok(output) => {
+                    let error = String::from_utf8_lossy(&output.stderr).trim().to_string();
+                    Ok(serde_json::json!({
+                        "available": false,
+                        "path": cli_path,
+                        "version": null,
+                        "error": format!("CLI found but not working: {}", error)
+                    }))
+                }
+                Err(e) => {
+                    Ok(serde_json::json!({
+                        "available": false,
+                        "path": cli_path,
+                        "version": null,
+                        "error": format!("Failed to execute CLI: {}", e)
+                    }))
+                }
+            }
+        }
+        Err(e) => {
+            Ok(serde_json::json!({
+                "available": false,
+                "path": null,
+                "version": null,
+                "error": e
+            }))
+        }
     }
 }
 
@@ -218,7 +311,8 @@ pub fn run() {
             run_container_command_with_stdin,
             stream_container_logs,
             stop_log_stream,
-            get_container_status
+            get_container_status,
+            check_container_cli
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

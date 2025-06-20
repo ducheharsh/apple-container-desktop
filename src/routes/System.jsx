@@ -14,8 +14,8 @@ const System = () => {
 
   const checkSystemRequirements = async () => {
     try {
-      // Check container CLI version
-      const versionResult = await invoke('run_container_command', { args: ['--version'] });
+      // Check container CLI availability and version using new dedicated function
+      const cliCheck = await invoke('check_container_cli');
       
       // Get basic system info (this will be detected from the browser/system)
       const isAppleSilicon = navigator.platform.includes('Mac') && 
@@ -23,10 +23,12 @@ const System = () => {
                             navigator.platform.includes('arm'));
       
       setSystemInfo({
-        containerVersion: versionResult.success ? versionResult.stdout.trim() : 'Not available',
-        hasContainer: versionResult.success,
+        containerVersion: cliCheck.version || 'Not available',
+        hasContainer: cliCheck.available,
         isAppleSilicon: isAppleSilicon,
-        platform: navigator.platform
+        platform: navigator.platform,
+        cliPath: cliCheck.path,
+        cliError: cliCheck.error
       });
     } catch (error) {
       console.error('Failed to check system requirements:', error);
@@ -34,7 +36,9 @@ const System = () => {
         containerVersion: 'Error checking version',
         hasContainer: false,
         isAppleSilicon: false,
-        platform: navigator.platform || 'Unknown'
+        platform: navigator.platform || 'Unknown',
+        cliPath: null,
+        cliError: error.toString()
       });
     }
   };
@@ -249,10 +253,23 @@ const System = () => {
               </div>
             </div>
             
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">CLI Location:</span>
+              <span className="text-sm font-mono text-gray-800">
+                {systemInfo.cliPath || 'Not found'}
+              </span>
+            </div>
+            
             {!systemInfo.hasContainer && (
               <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
                 <p className="text-sm text-red-800">
-                  <strong>Apple Container CLI not found.</strong> Please install it from{' '}
+                  <strong>Apple Container CLI not found.</strong>
+                  {systemInfo.cliError && (
+                    <span className="block mt-1 font-mono text-xs">{systemInfo.cliError}</span>
+                  )}
+                </p>
+                <p className="text-sm text-red-800 mt-2">
+                  Please install it from{' '}
                   <a 
                     href="https://github.com/apple/container/releases" 
                     target="_blank" 
@@ -262,6 +279,15 @@ const System = () => {
                     GitHub Releases
                   </a>
                 </p>
+                <div className="mt-2 text-xs text-red-700">
+                  <strong>Installation steps:</strong>
+                  <ol className="list-decimal list-inside mt-1 space-y-1">
+                    <li>Download the installer package from GitHub</li>
+                    <li>Double-click to install (requires admin password)</li>
+                    <li>Run: <code className="bg-red-100 px-1 rounded">sudo container system start</code></li>
+                    <li>Restart this application</li>
+                  </ol>
+                </div>
               </div>
             )}
             

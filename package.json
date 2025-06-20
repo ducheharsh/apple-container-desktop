@@ -1,6 +1,6 @@
 {
   "name": "container-gui",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
@@ -29,7 +29,9 @@
     "eject": "react-scripts eject",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "release": "npm run build && tauri build",
+    "release:debug": "npm run build && tauri build --debug"
   },
   "eslintConfig": {
     "extends": [

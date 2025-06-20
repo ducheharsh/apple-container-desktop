@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "container-gui",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "productName": "Container GUI",
+  "version": "1.0.0",
+  "identifier": "com.containergui.app",
   "build": {
     "frontendDist": "../build",
     "devUrl": "http://localhost:3000",
@@ -12,11 +12,14 @@
   "app": {
     "windows": [
       {
-        "title": "container-gui",
-        "width": 800,
-        "height": 600,
+        "title": "Container GUI - Apple Container Management",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true
       }
     ],
     "security": {
@@ -32,6 +35,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "copyright": "Copyright © 2025 Container GUI. All rights reserved.",
+    "category": "DeveloperTool",
+    "shortDescription": "Modern GUI for Apple Container CLI",
+    "longDescription": "A modern, intuitive desktop application for managing Apple's container CLI. Features include container lifecycle management, image operations, real-time logs, and system control."
   }
 }
