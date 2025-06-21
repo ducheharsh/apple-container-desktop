@@ -1,6 +1,6 @@
 <br />
 <p align="center">
-  <a href="https://www.twenty.com">
+  <a href="https://container-gui.harshduche.com">
     <img src="https://github.com/user-attachments/assets/b46c1f73-ec9b-4a4b-9057-22759596c420" width="100px" alt="Container Gui logo" />
   </a>
 </p>
