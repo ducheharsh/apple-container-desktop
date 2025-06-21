@@ -1,30 +1,35 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { TauriProvider } from './components/TauriProvider';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
 import Sidebar from './components/Sidebar';
-import Dashboard from './routes/Dashboard';
-import RunContainer from './routes/RunContainer';
-import Logs from './routes/Logs';
-import Images from './routes/Images';
-import BuildImage from './routes/BuildImage';
-import Registry from './routes/Registry';
-import System from './routes/System';
+import { TauriProvider } from './components/TauriProvider';
+import { 
+  Dashboard, 
+  RunContainer, 
+  Logs, 
+  Images, 
+  BuildImage, 
+  Registry, 
+  System, 
+  Marketplace 
+} from './routes';
 
 function App() {
   return (
     <TauriProvider>
       <Router>
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-100">
           <Sidebar />
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-y-auto">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/run" element={<RunContainer />} />
+              <Route path="/run-container" element={<RunContainer />} />
               <Route path="/logs" element={<Logs />} />
               <Route path="/logs/:containerName" element={<Logs />} />
               <Route path="/images" element={<Images />} />
-              <Route path="/build" element={<BuildImage />} />
+              <Route path="/build-image" element={<BuildImage />} />
+              <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/registry" element={<Registry />} />
               <Route path="/system" element={<System />} />
             </Routes>

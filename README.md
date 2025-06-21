@@ -1,324 +1,217 @@
 # Container GUI
 
-A modern, desktop GUI application for managing [Apple's container CLI](https://github.com/apple/container), built with Tauri and React. Think of it as a Docker Desktop alternative for Apple's container management system.
+A modern desktop GUI application for Apple's container CLI tool, built with Tauri (Rust) and React. This application provides a user-friendly interface for managing Apple containers on macOS, designed specifically for Apple Silicon.
 
-![Container GUI](https://img.shields.io/badge/Platform-macOS-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-![React](https://img.shields.io/badge/React-18+-blue)
-![Tauri](https://img.shields.io/badge/Tauri-2.0-orange)
-![Apple Container](https://img.shields.io/badge/Apple%20Container-0.1.0+-red)
+## Features
 
-## About Apple Container
+Container GUI supports all major Apple container CLI features through an intuitive graphical interface:
 
-[Apple Container](https://github.com/apple/container) is a tool for creating and running Linux containers using lightweight virtual machines on Mac. It's written in Swift, optimized for Apple silicon, and produces OCI-compliant container images that work with standard container registries.
+### 🚀 Container Management
+- **Run Containers** with comprehensive options:
+  - Memory and CPU resource limits (`--memory`, `--cpus`)
+  - Architecture selection (ARM64, AMD64 with Rosetta)
+  - Volume mounts (`--volume` and `--mount` syntax)
+  - Environment variables
+  - Interactive/TTY modes
+  - Background execution with dedicated IP addresses
+  - DNS domain configuration
 
-**System Requirements:**
-- 🍎 Apple silicon Mac (M1, M2, M3, etc.)
-- 🖥️ macOS 26 beta (limited functionality on macOS 15)  
-- 📦 [Apple Container CLI](https://github.com/apple/container/releases) installed
+### 🏗️ Image Building & Multi-Architecture Support
+- **Builder Management**:
+  - Start/stop/delete builder containers
+  - Configure builder resources (memory, CPUs)
+  - Status monitoring
+- **Multi-Platform Builds**:
+  - Build for ARM64 and AMD64 architectures simultaneously
+  - Dockerfile editor with syntax highlighting
+  - Build context selection
+  - Registry push integration
 
-**Key Benefits:**
-- ⚡ Native performance on Apple silicon
-- 🔒 Lightweight VMs for better security isolation
-- 🐳 OCI-compliant container images
-- 🔄 Compatible with standard container registries
+### 📊 Container Monitoring & Inspection
+- **Container Logs**:
+  - Real-time log streaming with follow mode
+  - Boot logs viewing (`--boot` option)
+  - Log filtering (tail, since, until)
+  - System logs access
+  - Download logs to file
+- **Resource Inspection**:
+  - Detailed JSON inspection of containers and images
+  - Formatted JSON output with copy-to-clipboard
+  - Container and image metadata viewing
 
-## 🚀 Features
+### 🖥️ System Management
+- **System Overview**:
+  - Container and image statistics
+  - System status monitoring
+  - Resource usage insights
+- **Advanced Features**:
+  - System information display
+  - Container/image inspection tools
+  - Quick navigation to all features
 
-### 📊 Dashboard
-- **Container Overview**: View all containers with status indicators
-- **Quick Actions**: Start, stop, restart, and delete containers with one click
-- **Real-time Status**: Live updates of container states
-- **Direct Navigation**: Jump to logs or other operations
+### 🌐 Networking (Apple Container Approach)
+- **Dedicated IP Addresses**: Each container gets its own IP address
+- **No Port Mapping Required**: Direct access via container IP
+- **DNS Domain Support**: Access containers via hostname.domain
+- **Network Isolation**: Secure container-to-container communication
 
-### 🏃‍♂️ Run Containers
-- **Interactive Form**: Easy-to-use interface for creating containers
-- **Advanced Options**: Port mappings, volume mounts, environment variables
-- **Configuration Presets**: Common settings for quick deployment
-- **Command Override**: Custom entrypoint and command support
+## Apple Container CLI Integration
 
-### 📜 Live Logs
-- **Real-time Streaming**: Live log viewing with automatic scrolling
-- **Historical Logs**: View past container output
-- **Download Logs**: Export logs for analysis
-- **Multiple Containers**: Switch between different container logs
-
-### 🖼️ Image Management
-- **Image Library**: View all available images
-- **Pull Images**: Download images from registries
-- **Tag Management**: Create and manage image tags
-- **Storage Info**: Size and creation date information
-
-### 🔨 Build Images
-- **Dockerfile Editor**: Built-in editor with syntax highlighting
-- **Template Support**: Pre-built Dockerfile templates
-- **Build Context**: Configurable build context and arguments
-- **Progress Tracking**: Real-time build output
-
-### ☁️ Registry Operations
-- **Registry Login**: Authenticate with container registries
-- **Push/Pull**: Upload and download images
-- **Multi-Registry**: Support for multiple registry providers
-- **Credential Management**: Secure credential storage
-
-### ⚙️ System Control
-- **System Management**: Start/stop the container daemon
-- **DNS Configuration**: Manage container DNS entries
-- **Status Monitoring**: Real-time system status
-- **Service Control**: Full control over container services
-
-## 🛠️ Technology Stack
-
-- **Frontend**: React 18+ with modern hooks
-- **Styling**: Tailwind CSS for responsive design
-- **Icons**: Lucide React for consistent iconography
-- **Backend**: Rust with Tauri for native performance
-- **Routing**: React Router for single-page navigation
-- **State Management**: React built-in state with custom hooks
-
-## 📋 Prerequisites
-
-Before running this application, ensure you have:
-
-1. **Apple's Container CLI** installed and configured
-2. **Node.js** (version 16 or higher)
-3. **Rust** (latest stable version)
-4. **Tauri CLI** installed globally
-
-### Installing Prerequisites
+This GUI interfaces with Apple's native container CLI, supporting all major commands:
 
 ```bash
-# Download and install Apple Container CLI from GitHub releases
-# https://github.com/apple/container/releases
-# Follow the installation instructions for the .pkg installer
+# Container operations
+container run --memory 4g --cpus 8 --arch arm64 nginx:latest
+container ls --format json --all
+container logs --follow --boot my-container
+container stop my-container
 
-# Install Node.js (using Homebrew)
-brew install node
+# Image operations  
+container build --arch arm64 --arch amd64 --tag my-app:latest .
+container images list --format json
+container images push my-app:latest
 
-# Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# Builder management
+container builder start --memory 32g --cpus 8
+container builder stop
+container builder delete
 
-# Install Tauri CLI
-npm install -g @tauri-apps/cli
-
-# Start the container system
-sudo container system start
-
-# Verify Apple's container CLI is available
-container --version
+# System operations
+container system info
+container system logs
+container inspect my-container
 ```
 
-## 🚀 Quick Start
+## Requirements
 
-1. **Clone the repository**
+- **macOS 15+** (recommended macOS 26 beta for best compatibility)
+- **Apple Silicon Mac** (required)
+- **Apple Container CLI** installed from [GitHub releases](https://github.com/apple/container/releases)
+- **Xcode 26 Beta** (for development)
+
+## Installation
+
+1. **Install Apple Container CLI**:
    ```bash
-   git clone <repository-url>
+   # Download from GitHub releases
+   # https://github.com/apple/container/releases
+   
+   # Install and start the system
+   container system start
+   ```
+
+2. **Install Container GUI**:
+   ```bash
+   # Clone the repository
+   git clone https://github.com/your-repo/container-gui.git
    cd container-gui
-   ```
-
-2. **Install dependencies**
-   ```bash
+   
+   # Install dependencies
    npm install
+   
+   # Run in development mode
+   npm run tauri dev
+   
+   # Build for production
+   npm run tauri build
    ```
 
-3. **Start development server**
-   ```bash
-   npm run tauri:dev
-   ```
+## Usage
 
-4. **Build for production**
-   ```bash
-   npm run tauri:build
-   ```
+### Running Containers
 
-## 🎯 Usage Guide
-
-### Getting Started
-
-1. **Launch the application** - The GUI will automatically start with the sidebar navigation
-2. **Check System Status** - Visit the System page to ensure container daemon is running
-3. **View Containers** - Dashboard shows all containers with their current status
-4. **Create Container** - Use the Run Container page to create new containers
-5. **Monitor Logs** - View real-time logs in the Logs section
-
-### Key Operations
-
-#### Running Your First Container
 1. Navigate to **Run Container**
-2. Enter an image name (e.g., `nginx:latest`)
-3. Configure port mappings if needed
-4. Click **Run Container**
-5. Monitor the output for success
+2. Configure your container:
+   - Set image name (e.g., `nginx:latest`)
+   - Adjust memory/CPU limits as needed
+   - Add volume mounts for file sharing
+   - Set environment variables
+   - Choose architecture (ARM64/AMD64)
+3. Click **Run Container**
+4. Access your container via its dedicated IP address (shown in container list)
 
-#### Building an Image
-1. Go to **Build Image**
-2. Enter your image name and tag
-3. Create a Dockerfile using the template
-4. Set the build context path
-5. Click **Build Image**
+### Building Images
 
-#### Managing Registry Access
-1. Visit **Registry Management**
-2. Enter your registry credentials
-3. Use Push/Pull tabs for image operations
-4. Monitor progress in the output panel
+1. Navigate to **Build Image**
+2. Manage builder resources:
+   - Start builder with custom memory/CPU allocation
+   - Monitor builder status
+3. Configure build:
+   - Enter image tag
+   - Select target architectures
+   - Edit Dockerfile in integrated editor
+4. Click **Build Image**
+5. Optionally push to registry after build
 
-## 🔧 Configuration
+### Viewing Logs
 
-### Container CLI Integration
+1. Navigate to **Logs**
+2. Select a container from the dropdown
+3. Configure log options:
+   - Enable follow mode for live streaming
+   - Show boot logs for VM startup information
+   - Set tail, since, until filters
+4. View real-time logs or download to file
 
-The application automatically detects and uses Apple's `container` CLI. Ensure it's in your PATH:
+### System Monitoring
 
-```bash
-which container
-# Should return: /usr/local/bin/container (or similar)
-```
+1. Navigate to **System Control**
+2. View system statistics and container overview
+3. Inspect containers and images:
+   - Select resource type (container/image)
+   - Choose item to inspect
+   - View detailed JSON metadata
+4. Access system logs and information
 
-### Custom Configuration
+## Apple Container Networking
 
-You can customize the application behavior by modifying:
+Unlike Docker, Apple containers use a different networking approach:
 
-- **Tauri Config**: `src-tauri/tauri.conf.json`
-- **React Config**: Standard React configuration files
-- **Styling**: Tailwind configuration in `tailwind.config.js`
+- **No Port Mapping**: Instead of `-p 8080:80`, each container gets a dedicated IP
+- **Direct Access**: Access containers directly via their IP address
+- **DNS Support**: Use `--dns-domain test` to access via hostname (e.g., `my-app.test`)
+- **Container Discovery**: Use `container ls` to find container IP addresses
 
-## 🎨 UI/UX Features
-
-- **Responsive Design**: Works on different screen sizes
-- **Dark/Light Mode**: Adapts to system preferences
-- **Loading States**: Clear feedback for all operations
-- **Error Handling**: Comprehensive error messages
-- **Keyboard Shortcuts**: Quick navigation and actions
-- **Status Indicators**: Visual cues for container states
-
-## 🔒 Security
-
-- **Secure Backend**: Rust-based Tauri backend for security
-- **Sandboxed Environment**: Limited filesystem access
-- **Credential Protection**: Secure handling of registry credentials
-- **Command Validation**: Input sanitization for CLI commands
-
-## 🚀 Performance
-
-- **Native Performance**: Rust backend for fast operations
-- **Efficient Updates**: Optimized React rendering
-- **Memory Management**: Automatic cleanup of resources
-- **Async Operations**: Non-blocking UI for long-running tasks
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Container CLI not found**
-   ```bash
-   # Verify installation
-   container --version
-   # Add to PATH if needed
-   export PATH="/usr/local/bin:$PATH"
-   ```
-
-2. **Build failures**
-   ```bash
-   # Clean and rebuild
-   npm run clean
-   npm install
-   npm run tauri:dev
-   ```
-
-3. **Permission errors**
-   ```bash
-   # Check container CLI permissions
-   sudo chown $(whoami) /usr/local/bin/container
-   ```
-
-### Debug Mode
-
-Enable debug mode for detailed logging:
+### Example Workflow
 
 ```bash
-RUST_LOG=debug npm run tauri:dev
+# Run a web server
+container run -d --name my-web --dns-domain test nginx:latest
+
+# Check container IP
+container ls
+# Shows: my-web running at 192.168.64.3
+
+# Access directly
+curl http://192.168.64.3
+# Or via DNS: curl http://my-web.test
 ```
 
-## 🤝 Contributing
+## Architecture
 
-We welcome contributions! Please:
+- **Frontend**: React 18 + Tailwind CSS
+- **Backend**: Tauri 2.x (Rust)
+- **Container Runtime**: Apple Container CLI
+- **Platform**: macOS (Apple Silicon optimized)
+
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+3. Make your changes
+4. Test with Apple Container CLI
+5. Submit a pull request
 
-### Development Setup
-
-```bash
-# Install development dependencies
-npm install
-
-# Run linting
-npm run lint
-
-# Run tests
-npm test
-
-# Build for development
-npm run tauri:dev
-```
-
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- **Tauri Team** for the excellent desktop framework
-- **React Team** for the robust frontend library
-- **Tailwind CSS** for the utility-first styling
-- **Lucide** for the beautiful icon set
-- **Apple** for the container CLI system
-
-## 📞 Support
-
-For support and questions:
-
-- Create an issue on GitHub
-- Check the documentation
-- Join our community discussions
-
-## 🎯 Apple Container CLI Compatibility
-
-This GUI application has been **verified and optimized** for Apple Container CLI version **0.1.0** and provides complete compatibility with the following commands:
-
-### ✅ **Verified Commands**
-| Command | GUI Feature | Status |
-|---------|-------------|--------|
-| `container ls` | Dashboard - Container listing | ✅ Working |
-| `container start/stop/restart/rm` | Dashboard - Container actions | ✅ Working |  
-| `container logs --follow` | Logs - Real-time streaming | ✅ Working |
-| `container run` | Run Container - Create containers | ✅ Working |
-| `container images ls` | Images - List images | ✅ Working |
-| `container pull` | Images - Pull from registry | ✅ Working |
-| `container tag` | Images - Tag management | ✅ Working |
-| `container images rm` | Images - Delete images | ✅ Working |
-| `container build` | Build Image - From Dockerfile | ✅ Working |
-| `container system start/stop` | System - Daemon control | ✅ Working |
-| `container system dns` | System - DNS management | ✅ Working |
-| `container login/logout` | Registry - Authentication | ✅ Working |
-| `container push` | Registry - Push to registry | ✅ Working |
-
-### 🔍 **System Requirements Detection**
-The application automatically detects:
-- ✅ Apple Container CLI availability and version
-- ✅ Apple Silicon vs Intel architecture
-- ✅ System compatibility warnings
-- ✅ Installation guidance for missing components
-
-### 📊 **Real-time Status**
-- **Container Status**: Live monitoring of running/stopped containers
-- **Log Streaming**: Real-time container log output with timestamps
-- **System Health**: Automatic detection of container daemon status
-- **Error Handling**: Comprehensive error messages and troubleshooting
+- Apple for the open-source Container project
+- Tauri team for the excellent desktop app framework
+- React and Tailwind CSS communities
 
 ---
 
-**Built with ❤️ using Tauri and React**
+**Note**: This GUI is designed specifically for Apple's container CLI and requires Apple Silicon hardware. It provides a modern alternative to command-line container management on macOS.

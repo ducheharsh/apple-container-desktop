@@ -1,19 +1,38 @@
-Container GUI v1.0.1
-Release Date: Sat Jun 21 05:48:00 IST 2025
+Container GUI v1.1.0 - Major Marketplace Update
+Release Date: Sat Jun 21 18:42:45 IST 2025
 Platform: macOS (Apple Silicon)
 Architecture: aarch64
 
-🎨 NEW in v1.0.1:
-- Professional logo design (Container + Apple branding)
-- Updated app icons across all platforms
-- Optimized build size (50% smaller!)
-- Enhanced visual identity
+🎉 NEW FEATURES IN v1.1.0:
+✨ Container Image Marketplace
+   - Browse 16+ featured images (nginx, redis, postgres, etc.)
+   - Real-time search across Docker Hub registry
+   - Smart categories and filtering
+   - Official image badges and verification
+
+⬇️ Enhanced Download Experience
+   - One-click image pulls with progress tracking
+   - Local image detection and status badges
+   - Smart button states (Pull → Pulling... → Installed)
+   - Persistent state across tab navigation
+
+🔧 Apple Container CLI Integration
+   - Fixed command structure for Apple's container CLI
+   - Proper JSON parsing and image reference handling
+   - Support for both short and full image names
+
+🎨 Improved User Experience
+   - Modern card-based design with hover effects
+   - Real-time progress indicators and status updates
+   - Smart caching and background monitoring
+   - Cross-tab state persistence
 
 Files included:
-- Container GUI.app (Application Bundle) - 4.6 MB
-- Container-GUI-1.0.1-aarch64.dmg (Installer) - 5.5 MB
+- Container GUI.app (Application Bundle)
+- Container-GUI-1.1.0-aarch64.dmg (Installer)
+- Container GUI.app.zip (Portable Bundle)
 - README.md (Documentation)
-- RELEASE.md (Release Notes)
+- RELEASE.md (Detailed Release Notes)
 - TROUBLESHOOTING.md (Problem Resolution)
 - checksums.sha256 (File Verification)
 
@@ -21,12 +40,23 @@ Installation:
 1. Install Apple Container CLI from https://github.com/apple/container/releases
 2. Double-click the DMG file or drag the .app to Applications
 3. Launch from Applications folder
+4. Navigate to the new "Marketplace" tab to explore images
 
 System Requirements:
 - Apple Silicon Mac (M1, M2, M3, M4)
 - macOS 15.0 or later
-- Apple Container CLI installed
+- Apple Container CLI v0.1.0+ installed
+- Internet connection for Docker Hub integration
+
+What's New:
+- 🛍️ Complete Container Image Marketplace
+- 🔍 Real-time Docker Hub search and discovery
+- 📊 Live image statistics and metadata
+- ⬇️ Advanced download management with progress tracking
+- 🔄 Persistent state management across navigation
+- 🎨 Enhanced UI/UX with modern design patterns
 
 Support:
 - Check system requirements in the app
 - Verify container CLI with: container --version
+- Test marketplace with: Search for "nginx" or browse featured images
