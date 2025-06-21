@@ -1,4 +1,11 @@
-# Container GUI
+<br />
+<p align="center">
+  <a href="https://www.twenty.com">
+    <img src="https://github.com/user-attachments/assets/b46c1f73-ec9b-4a4b-9057-22759596c420" width="100px" alt="Container Gui logo" />
+  </a>
+</p>
+
+<h2 align="center" >Container GUI </h2>
 
 A modern, desktop GUI application for managing [Apple's container CLI](https://github.com/apple/container), built with Tauri and React. Think of it as a Docker Desktop alternative for Apple's container management system.
 
