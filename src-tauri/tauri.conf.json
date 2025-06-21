@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Container GUI",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "identifier": "com.containergui.app",
   "build": {
     "frontendDist": "../build",
@@ -38,7 +38,7 @@
     ],
     "copyright": "Copyright © 2025 Container GUI. All rights reserved.",
     "category": "DeveloperTool",
-    "shortDescription": "Modern GUI for Apple Container CLI",
-    "longDescription": "A modern, intuitive desktop application for managing Apple's container CLI. Features include container lifecycle management, image operations, real-time logs, and system control."
+    "shortDescription": "Modern GUI for Apple Container CLI with Image Marketplace",
+    "longDescription": "A modern, intuitive desktop application for managing Apple's container CLI with a comprehensive Image Marketplace. Features include container lifecycle management, Docker Hub integration, real-time image discovery, one-click pulls, persistent state management, real-time logs, and system control. Browse 16+ featured images, search Docker Hub registry, and manage downloads with advanced progress tracking."
   }
 }

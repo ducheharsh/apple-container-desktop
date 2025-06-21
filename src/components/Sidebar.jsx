@@ -8,7 +8,8 @@ import {
   Hammer, 
   Cloud, 
   Settings,
-  Box
+  Package,
+  ShoppingCart
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -17,10 +18,11 @@ const Sidebar = () => {
 
   const navigationItems = [
     { name: 'Dashboard', path: '/dashboard', icon: Container },
-    { name: 'Run Container', path: '/run', icon: Play },
+    { name: 'Run Container', path: '/run-container', icon: Play },
     { name: 'Logs', path: '/logs', icon: FileText },
     { name: 'Images', path: '/images', icon: Image },
-    { name: 'Build Image', path: '/build', icon: Hammer },
+    { name: 'Marketplace', path: '/marketplace', icon: ShoppingCart },
+    { name: 'Build Image', path: '/build-image', icon: Hammer },
     { name: 'Registry', path: '/registry', icon: Cloud },
     { name: 'System', path: '/system', icon: Settings },
   ];
@@ -29,7 +31,8 @@ const Sidebar = () => {
     <div className="w-64 bg-white shadow-lg border-r border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <Box className="h-8 w-8 text-primary-600" />
+          {/* <Package className="h-8 w-8 text-primary-600" /> */}
+          <img src="/logo512.png" alt="Container GUI" className="h-8 w-8" /> 
           <h1 className="text-xl font-bold text-gray-900">Container GUI</h1>
         </div>
       </div>

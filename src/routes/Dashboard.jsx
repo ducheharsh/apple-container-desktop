@@ -129,7 +129,7 @@ const Dashboard = () => {
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </button>
-        <button
+        {/* <button
           onClick={async () => {
             console.log('Testing container list command...');
             try {
@@ -144,7 +144,7 @@ const Dashboard = () => {
           className="btn-secondary text-sm"
         >
           Test
-        </button>
+        </button> */}
       </div>
 
       {commandResult && (
@@ -210,53 +210,55 @@ const Dashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {container.Ports || container.ports || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      {(() => {
-                        const containerName = container.Names || container.name || container.id || `container-${index}`;
-                        return (
-                          <>
-                            <button
-                              onClick={() => handleContainerAction(containerName, 'start')}
-                              disabled={actionLoading === `${containerName}-start`}
-                              className="text-green-600 hover:text-green-900"
-                              title="Start"
-                            >
-                              <Play className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleContainerAction(containerName, 'stop')}
-                              disabled={actionLoading === `${containerName}-stop`}
-                              className="text-red-600 hover:text-red-900"
-                              title="Stop"
-                            >
-                              <Square className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleContainerAction(containerName, 'restart')}
-                              disabled={actionLoading === `${containerName}-restart`}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Restart"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </button>
-                            <Link
-                              to={`/logs/${containerName}`}
-                              className="text-gray-600 hover:text-gray-900"
-                              title="View Logs"
-                            >
-                              <FileText className="h-4 w-4" />
-                            </Link>
-                            <button
-                              onClick={() => handleContainerAction(containerName, 'delete')}
-                              disabled={actionLoading === `${containerName}-delete`}
-                              className="text-red-600 hover:text-red-900"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
-                        );
-                      })()}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-3">
+                        {(() => {
+                          const containerName = container.Names || container.name || container.id || `container-${index}`;
+                          return (
+                            <>
+                              <button
+                                onClick={() => handleContainerAction(containerName, 'start')}
+                                disabled={actionLoading === `${containerName}-start`}
+                                className="p-1.5 rounded-full text-green-600 hover:text-green-900 hover:bg-green-50"
+                                title="Start"
+                              >
+                                <Play className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleContainerAction(containerName, 'stop')}
+                                disabled={actionLoading === `${containerName}-stop`}
+                                className="p-1.5 rounded-full text-red-600 hover:text-red-900 hover:bg-red-50"
+                                title="Stop"
+                              >
+                                <Square className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleContainerAction(containerName, 'restart')}
+                                disabled={actionLoading === `${containerName}-restart`}
+                                className="p-1.5 rounded-full text-blue-600 hover:text-blue-900 hover:bg-blue-50"
+                                title="Restart"
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </button>
+                              <Link
+                                to={`/logs/${containerName}`}
+                                className="p-1.5 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                title="View Logs"
+                              >
+                                <FileText className="h-4 w-4" />
+                              </Link>
+                              <button
+                                onClick={() => handleContainerAction(containerName, 'delete')}
+                                disabled={actionLoading === `${containerName}-delete`}
+                                className="p-1.5 rounded-full text-red-600 hover:text-red-900 hover:bg-red-50"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </td>
                   </tr>
                 ))}

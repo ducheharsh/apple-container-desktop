@@ -183,7 +183,7 @@ const Images = () => {
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
-          <button
+          {/* <button
             onClick={async () => {
               console.log('Testing images command...');
               try {
@@ -198,7 +198,7 @@ const Images = () => {
             className="btn-secondary text-sm"
           >
             Test
-          </button>
+          </button> */}
         </div>
       </div>
 

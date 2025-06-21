@@ -1,465 +1,416 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { Settings, Power, PowerOff, Globe, Plus, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
-import CommandOutput from '../components/CommandOutput';
+import { 
+  Activity, 
+  Server, 
+  Search, 
+  Eye, 
+  Code, 
+  RefreshCw, 
+  HardDrive,
+  Cpu,
+  Network,
+  Settings,
+  Database,
+  Monitor
+} from 'lucide-react';
 
 const System = () => {
-  const [systemStatus, setSystemStatus] = useState('unknown');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [dnsEntries, setDnsEntries] = useState([]);
-  const [newDnsEntry, setNewDnsEntry] = useState('');
-  const [defaultDns, setDefaultDns] = useState('');
   const [systemInfo, setSystemInfo] = useState(null);
-
-  const checkSystemRequirements = async () => {
-    try {
-      // Check container CLI availability and version using new dedicated function
-      const cliCheck = await invoke('check_container_cli');
-      
-      // Get basic system info (this will be detected from the browser/system)
-      const isAppleSilicon = navigator.platform.includes('Mac') && 
-                           (navigator.userAgent.includes('Apple Silicon') || 
-                            navigator.platform.includes('arm'));
-      
-      setSystemInfo({
-        containerVersion: cliCheck.version || 'Not available',
-        hasContainer: cliCheck.available,
-        isAppleSilicon: isAppleSilicon,
-        platform: navigator.platform,
-        cliPath: cliCheck.path,
-        cliError: cliCheck.error
-      });
-    } catch (error) {
-      console.error('Failed to check system requirements:', error);
-      setSystemInfo({
-        containerVersion: 'Error checking version',
-        hasContainer: false,
-        isAppleSilicon: false,
-        platform: navigator.platform || 'Unknown',
-        cliPath: null,
-        cliError: error.toString()
-      });
-    }
-  };
-
-  const checkSystemStatus = async () => {
-    try {
-      // Check if system is running by trying to list containers
-      const listResult = await invoke('run_container_command', { args: ['ls'] });
-      if (listResult.success) {
-        setSystemStatus('running');
-      } else {
-        setSystemStatus('stopped');
-      }
-    } catch (error) {
-      console.error('Failed to check system status:', error);
-      setSystemStatus('unknown');
-    }
-  };
-
-  const fetchDnsEntries = async () => {
-    try {
-      const dnsResult = await invoke('run_container_command', { args: ['system', 'dns', 'list'] });
-      if (dnsResult.success) {
-        // Parse DNS entries from output
-        const lines = dnsResult.stdout.trim().split('\n').filter(line => line && !line.startsWith('NAME'));
-        const entries = lines.map(line => line.trim()).filter(entry => entry);
-        setDnsEntries(entries);
-      }
-    } catch (error) {
-      console.error('Failed to fetch DNS entries:', error);
-    }
-  };
+  const [containers, setContainers] = useState([]);
+  const [images, setImages] = useState([]);
+  const [selectedItem, setSelectedItem] = useState('');
+  const [itemType, setItemType] = useState('container'); // 'container' or 'image'
+  const [inspectResult, setInspectResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [systemLoading, setSystemLoading] = useState(false);
+  const [formatJson, setFormatJson] = useState(true);
 
   useEffect(() => {
-    checkSystemRequirements();
-    checkSystemStatus();
-    fetchDnsEntries();
+    fetchSystemInfo();
+    fetchContainers();
+    fetchImages();
   }, []);
 
-  const handleSystemAction = async (action) => {
-    setLoading(true);
-    setResult(null);
-
+  const fetchSystemInfo = async () => {
+    setSystemLoading(true);
     try {
-      const actionResult = await invoke('run_container_command', { args: ['system', action] });
-      setResult(actionResult);
-      
-      if (actionResult.success) {
-        await checkSystemStatus();
+      const result = await invoke('run_container_command', { args: ['system', 'info'] });
+      if (result.success) {
+        setSystemInfo(result.stdout);
+      } else {
+        setSystemInfo(`Error: ${result.stderr || 'Failed to get system info'}`);
       }
     } catch (error) {
-      setResult({
-        success: false,
-        stdout: '',
-        stderr: error.toString(),
-        exit_code: 1
-      });
+      setSystemInfo(`Error: ${error.toString()}`);
     } finally {
-      setLoading(false);
+      setSystemLoading(false);
     }
   };
 
-  const handleDnsCreate = async () => {
-    if (!newDnsEntry) {
-      alert('Please enter a DNS entry name');
+  const fetchContainers = async () => {
+    try {
+      const result = await invoke('run_container_command', { 
+        args: ['ls', '--format', 'json', '--all'] 
+      });
+      
+      if (result.success && result.stdout) {
+        try {
+          const containerList = JSON.parse(result.stdout);
+          setContainers(Array.isArray(containerList) ? containerList : []);
+        } catch (parseError) {
+          console.error('Failed to parse container list:', parseError);
+          setContainers([]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch containers:', error);
+      setContainers([]);
+    }
+  };
+
+  const fetchImages = async () => {
+    try {
+      const result = await invoke('run_container_command', { 
+        args: ['images', 'list', '--format', 'json'] 
+      });
+      
+      if (result.success && result.stdout) {
+        try {
+          const imageList = JSON.parse(result.stdout);
+          setImages(Array.isArray(imageList) ? imageList : []);
+        } catch (parseError) {
+          console.error('Failed to parse image list:', parseError);
+          setImages([]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch images:', error);
+      setImages([]);
+    }
+  };
+
+  const handleInspect = async () => {
+    if (!selectedItem) {
+      alert('Please select an item to inspect');
       return;
     }
 
     setLoading(true);
-    setResult(null);
-
     try {
-      const dnsResult = await invoke('run_container_command', { 
-        args: ['system', 'dns', 'create', newDnsEntry] 
-      });
-      setResult(dnsResult);
-      
-      if (dnsResult.success) {
-        setNewDnsEntry('');
-        await fetchDnsEntries();
+      let args;
+      if (itemType === 'container') {
+        args = ['inspect', selectedItem];
+      } else {
+        args = ['images', 'inspect', selectedItem];
+      }
+
+      const result = await invoke('run_container_command', { args });
+
+      if (result.success) {
+        let output = result.stdout || '';
+        
+        if (formatJson && output.trim()) {
+          try {
+            // Try to parse and format JSON
+            const parsed = JSON.parse(output);
+            output = JSON.stringify(parsed, null, 2);
+          } catch (e) {
+            // If not valid JSON, keep original output
+          }
+        }
+        
+        setInspectResult(output);
+      } else {
+        setInspectResult(`Error: ${result.stderr || 'Inspection failed'}`);
       }
     } catch (error) {
-      setResult({
-        success: false,
-        stdout: '',
-        stderr: error.toString(),
-        exit_code: 1
-      });
+      setInspectResult(`Error: ${error.toString()}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDnsDelete = async (dnsName) => {
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const dnsResult = await invoke('run_container_command', { 
-        args: ['system', 'dns', 'delete', dnsName] 
-      });
-      setResult(dnsResult);
-      
-      if (dnsResult.success) {
-        await fetchDnsEntries();
-      }
-    } catch (error) {
-      setResult({
-        success: false,
-        stdout: '',
-        stderr: error.toString(),
-        exit_code: 1
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleRefresh = () => {
+    fetchSystemInfo();
+    fetchContainers();
+    fetchImages();
   };
 
-  const handleSetDefaultDns = async () => {
-    if (!defaultDns) {
-      alert('Please enter a DNS name');
-      return;
-    }
+  const getSystemStats = () => {
+    if (!systemInfo) return null;
 
-    setLoading(true);
-    setResult(null);
+    // Parse basic info from system info
+    const stats = {
+      containers: containers.length,
+      runningContainers: containers.filter(c => c.status === 'running').length,
+      images: images.length,
+      stoppedContainers: containers.filter(c => c.status === 'stopped' || c.status === 'exited').length
+    };
 
-    try {
-      const dnsResult = await invoke('run_container_command', { 
-        args: ['system', 'dns', 'default', 'set', defaultDns] 
-      });
-      setResult(dnsResult);
-      
-      if (dnsResult.success) {
-        setDefaultDns('');
-      }
-    } catch (error) {
-      setResult({
-        success: false,
-        stdout: '',
-        stderr: error.toString(),
-        exit_code: 1
-      });
-    } finally {
-      setLoading(false);
-    }
+    return stats;
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'running':
-        return 'text-green-600';
-      case 'stopped':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'running':
-        return <Power className="h-5 w-5 text-green-600" />;
-      case 'stopped':
-        return <PowerOff className="h-5 w-5 text-red-600" />;
-      default:
-        return <Settings className="h-5 w-5 text-gray-600" />;
-    }
-  };
+  const stats = getSystemStats();
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center space-x-3">
-        <Settings className="h-8 w-8 text-primary-600" />
-        <h1 className="text-2xl font-bold text-gray-900">System Control</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Activity className="h-8 w-8 text-primary-600" />
+          <h1 className="text-2xl font-bold text-gray-900">System Control</h1>
+        </div>
+        
+        <button
+          onClick={handleRefresh}
+          disabled={systemLoading}
+          className="btn-secondary flex items-center space-x-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${systemLoading ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </button>
       </div>
 
-      {/* System Requirements Check */}
-      {systemInfo && (
-        <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
-            System Requirements
-          </h2>
-          
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Apple Container CLI:</span>
-              <div className="flex items-center space-x-2">
-                {systemInfo.hasContainer ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                ) : (
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                )}
-                <span className={`text-sm font-mono ${systemInfo.hasContainer ? 'text-green-600' : 'text-red-600'}`}>
-                  {systemInfo.containerVersion}
-                </span>
-              </div>
+      {/* System Statistics */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="card text-center">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Server className="h-6 w-6 text-blue-600" />
+              <span className="font-semibold text-gray-900">Total Containers</span>
             </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Architecture:</span>
-              <div className="flex items-center space-x-2">
-                {systemInfo.isAppleSilicon ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                ) : (
-                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                )}
-                <span className="text-sm font-mono">
-                  {systemInfo.isAppleSilicon ? 'Apple Silicon' : 'Intel/Other'}
-                </span>
-              </div>
+            <div className="text-3xl font-bold text-blue-600">{stats.containers}</div>
+          </div>
+
+          <div className="card text-center">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Activity className="h-6 w-6 text-green-600" />
+              <span className="font-semibold text-gray-900">Running</span>
             </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">CLI Location:</span>
-              <span className="text-sm font-mono text-gray-800">
-                {systemInfo.cliPath || 'Not found'}
-              </span>
+            <div className="text-3xl font-bold text-green-600">{stats.runningContainers}</div>
+          </div>
+
+          <div className="card text-center">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Database className="h-6 w-6 text-purple-600" />
+              <span className="font-semibold text-gray-900">Images</span>
             </div>
-            
-            {!systemInfo.hasContainer && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-800">
-                  <strong>Apple Container CLI not found.</strong>
-                  {systemInfo.cliError && (
-                    <span className="block mt-1 font-mono text-xs">{systemInfo.cliError}</span>
-                  )}
-                </p>
-                <p className="text-sm text-red-800 mt-2">
-                  Please install it from{' '}
-                  <a 
-                    href="https://github.com/apple/container/releases" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-red-700 underline hover:text-red-900"
-                  >
-                    GitHub Releases
-                  </a>
-                </p>
-                <div className="mt-2 text-xs text-red-700">
-                  <strong>Installation steps:</strong>
-                  <ol className="list-decimal list-inside mt-1 space-y-1">
-                    <li>Download the installer package from GitHub</li>
-                    <li>Double-click to install (requires admin password)</li>
-                    <li>Run: <code className="bg-red-100 px-1 rounded">sudo container system start</code></li>
-                    <li>Restart this application</li>
-                  </ol>
-                </div>
-              </div>
-            )}
-            
-            {!systemInfo.isAppleSilicon && (
-              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> Apple Container is optimized for Apple silicon. 
-                  Some features may not work as expected on Intel Macs.
-                </p>
-              </div>
-            )}
+            <div className="text-3xl font-bold text-purple-600">{stats.images}</div>
+          </div>
+
+          <div className="card text-center">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Monitor className="h-6 w-6 text-gray-600" />
+              <span className="font-semibold text-gray-900">Stopped</span>
+            </div>
+            <div className="text-3xl font-bold text-gray-600">{stats.stoppedContainers}</div>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Inspection Panel */}
         <div className="space-y-6">
-          {/* System Status */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              {getStatusIcon(systemStatus)}
-              <span className="ml-2">Container System Status</span>
-            </h2>
-            
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Status:</span>
-                <span className={`font-medium capitalize ${getStatusColor(systemStatus)}`}>
-                  {systemStatus}
-                </span>
-              </div>
-              <button
-                onClick={checkSystemStatus}
-                className="btn-secondary text-sm"
-                disabled={loading}
-              >
-                Refresh
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                onClick={() => handleSystemAction('start')}
-                disabled={loading || systemStatus === 'running'}
-                className="btn-primary w-full flex items-center justify-center space-x-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Starting...</span>
-                  </>
-                ) : (
-                  <>
-                    <Power className="h-4 w-4" />
-                    <span>Start System</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={() => handleSystemAction('stop')}
-                disabled={loading || systemStatus === 'stopped'}
-                className="btn-danger w-full flex items-center justify-center space-x-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Stopping...</span>
-                  </>
-                ) : (
-                  <>
-                    <PowerOff className="h-4 w-4" />
-                    <span>Stop System</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* DNS Management */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Globe className="h-5 w-5 mr-2" />
-              DNS Management
+              <Search className="h-5 w-5 mr-2" />
+              Inspect Resources
             </h2>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Create DNS Entry
+                  Resource Type
                 </label>
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={newDnsEntry}
-                    onChange={(e) => setNewDnsEntry(e.target.value)}
-                    className="input-field flex-1"
-                    placeholder="dns-entry-name"
-                  />
-                  <button
-                    onClick={handleDnsCreate}
-                    disabled={loading}
-                    className="btn-primary flex items-center space-x-1"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Create</span>
-                  </button>
-                </div>
+                <select
+                  value={itemType}
+                  onChange={(e) => {
+                    setItemType(e.target.value);
+                    setSelectedItem('');
+                    setInspectResult('');
+                  }}
+                  className="input-field"
+                >
+                  <option value="container">Container</option>
+                  <option value="image">Image</option>
+                </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Set Default DNS
+                  Select {itemType === 'container' ? 'Container' : 'Image'}
                 </label>
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={defaultDns}
-                    onChange={(e) => setDefaultDns(e.target.value)}
-                    className="input-field flex-1"
-                    placeholder="dns-entry-name"
-                  />
-                  <button
-                    onClick={handleSetDefaultDns}
-                    disabled={loading}
-                    className="btn-secondary"
-                  >
-                    Set Default
-                  </button>
-                </div>
+                <select
+                  value={selectedItem}
+                  onChange={(e) => setSelectedItem(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="">-- Select {itemType} --</option>
+                  {itemType === 'container' 
+                    ? containers.map((container) => (
+                        <option key={container.configuration?.id || container.id} value={container.configuration?.id || container.id}>
+                          {container.configuration?.id || container.id} ({container.status || 'unknown'})
+                        </option>
+                      ))
+                    : images.map((image) => (
+                        <option key={image.name || image.id} value={image.name || image.id}>
+                          {image.name || image.id}
+                        </option>
+                      ))
+                  }
+                </select>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">
-                  DNS Entries ({dnsEntries.length})
-                </h3>
-                {dnsEntries.length === 0 ? (
-                  <div className="text-center py-4 text-gray-500">
-                    <Globe className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No DNS entries found</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {dnsEntries.map((entry, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                      >
-                        <span className="text-sm font-mono">{entry}</span>
-                        <button
-                          onClick={() => handleDnsDelete(entry)}
-                          disabled={loading}
-                          className="text-red-600 hover:text-red-800"
-                          title="Delete DNS Entry"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formatJson}
+                    onChange={(e) => setFormatJson(e.target.checked)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Format JSON output</span>
+                </label>
               </div>
+
+              <button
+                onClick={handleInspect}
+                disabled={loading || !selectedItem}
+                className="btn-primary w-full flex items-center justify-center space-x-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Inspecting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4" />
+                    <span>Inspect</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* System Information */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Settings className="h-5 w-5 mr-2" />
+              System Information
+            </h2>
+
+            <div className="space-y-4">
+              {systemLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                  <span className="ml-2 text-gray-600">Loading system info...</span>
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono max-h-64 overflow-y-auto">
+                    {systemInfo || 'No system information available'}
+                  </pre>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div>
-          <CommandOutput 
-            result={result} 
-            loading={loading}
-            title="System Operation Result"
-          />
+        {/* Inspection Results */}
+        <div className="xl:col-span-2">
+          <div className="card h-full">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                <Code className="h-5 w-5 mr-2" />
+                Inspection Results
+              </h2>
+              {inspectResult && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(inspectResult);
+                    // You could add a toast notification here
+                  }}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Copy to clipboard
+                </button>
+              )}
+            </div>
+
+            <div className="relative">
+              <textarea
+                value={inspectResult}
+                readOnly
+                className="input-field font-mono text-sm resize-none"
+                style={{ height: '600px' }}
+                placeholder={
+                  selectedItem 
+                    ? `Click 'Inspect' to view detailed information about ${selectedItem}...`
+                    : `Select a ${itemType} and click 'Inspect' to view detailed JSON information...`
+                }
+              />
+
+              {loading && (
+                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                    <span className="text-gray-700">Loading inspection data...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {inspectResult && (
+              <div className="mt-4 text-sm text-gray-500">
+                <p>
+                  Inspection data for {itemType}: {selectedItem}
+                  {formatJson && " • Formatted JSON"}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="card">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Quick System Actions
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button
+            onClick={() => window.location.hash = '#/dashboard'}
+            className="btn-secondary flex flex-col items-center space-y-2 py-4"
+          >
+            <Server className="h-6 w-6" />
+            <span>Containers</span>
+          </button>
+
+          <button
+            onClick={() => window.location.hash = '#/images'}
+            className="btn-secondary flex flex-col items-center space-y-2 py-4"
+          >
+            <Database className="h-6 w-6" />
+            <span>Images</span>
+          </button>
+
+          <button
+            onClick={() => window.location.hash = '#/logs'}
+            className="btn-secondary flex flex-col items-center space-y-2 py-4"
+          >
+            <Monitor className="h-6 w-6" />
+            <span>Logs</span>
+          </button>
+
+          <button
+            onClick={() => window.location.hash = '#/build-image'}
+            className="btn-secondary flex flex-col items-center space-y-2 py-4"
+          >
+            <Settings className="h-6 w-6" />
+            <span>Build</span>
+          </button>
         </div>
       </div>
     </div>
