@@ -1,11 +1,17 @@
-Container GUI v1.0.0
-Release Date: Sat Jun 21 04:11:17 IST 2025
+Container GUI v1.0.1
+Release Date: Sat Jun 21 05:48:00 IST 2025
 Platform: macOS (Apple Silicon)
 Architecture: aarch64
 
+🎨 NEW in v1.0.1:
+- Professional logo design (Container + Apple branding)
+- Updated app icons across all platforms
+- Optimized build size (50% smaller!)
+- Enhanced visual identity
+
 Files included:
-- Container GUI.app (Application Bundle)
-- Container-GUI-1.0.0-aarch64.dmg (Installer)
+- Container GUI.app (Application Bundle) - 4.6 MB
+- Container-GUI-1.0.1-aarch64.dmg (Installer) - 5.5 MB
 - README.md (Documentation)
 - RELEASE.md (Release Notes)
 - TROUBLESHOOTING.md (Problem Resolution)
