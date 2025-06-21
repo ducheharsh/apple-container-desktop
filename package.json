@@ -32,7 +32,13 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "release": "npm run build && tauri build",
-    "release:debug": "npm run build && tauri build --debug"
+    "release:debug": "npm run build && tauri build --debug",
+    "monitor:start": "node scripts/monitor-releases.js",
+    "monitor:check": "node scripts/monitor-releases.js --single-check",
+    "integrate:release": "node scripts/integrate-release.js",
+    "test:integration": "node scripts/test-integration.js",
+    "release:create": "node scripts/create-release.js",
+    "release:package": "./scripts/package-release.sh"
   },
   "eslintConfig": {
     "extends": [

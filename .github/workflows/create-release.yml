@@ -1,0 +1,133 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: 'Skip the build process'
+        required: false
+        default: false
+        type: boolean
+      skip_tag:
+        description: 'Skip git tag creation'
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Setup Tauri dependencies
+        run: |
+          # Install Tauri CLI
+          npm install -g @tauri-apps/cli@^2.0.0
+
+      - name: Create release package
+        id: package
+        run: |
+          echo "🚀 Creating release package..."
+          
+          # Set build options from inputs
+          BUILD_ARGS=""
+          if [ "${{ github.event.inputs.skip_build }}" = "true" ]; then
+            BUILD_ARGS="$BUILD_ARGS --skip-build"
+          fi
+          if [ "${{ github.event.inputs.skip_tag }}" = "true" ]; then
+            BUILD_ARGS="$BUILD_ARGS --skip-tag"
+          fi
+          
+          # Run the automated release script
+          node scripts/create-release.js $BUILD_ARGS
+          
+          # Get version from package.json
+          VERSION=$(node -e "console.log(require('./package.json').version)")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag-name=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Run existing package script
+        run: |
+          echo "📦 Running additional packaging..."
+          chmod +x scripts/package-release.sh
+          ./scripts/package-release.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts-${{ steps.package.outputs.version }}
+          path: |
+            release/
+            src-tauri/target/release/bundle/
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.package.outputs.tag-name }}
+          name: Container GUI ${{ steps.package.outputs.version }}
+          body_path: release/release-notes.md
+          files: |
+            release/*.dmg
+            release/*.zip
+            release/*.sha256
+            release/checksums.sha256
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update package repositories
+        if: success()
+        run: |
+          echo "📦 Release created successfully!"
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.package.outputs.tag-name }}"
+          echo "📄 Version: ${{ steps.package.outputs.version }}"
+          
+          # Log success for monitoring
+          echo "✅ Release ${{ steps.package.outputs.version }} published successfully" >> logs/release-success.log
+
+  notify-release:
+    needs: create-release
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Release Success Notification
+        if: needs.create-release.result == 'success'
+        run: |
+          echo "🎉 Release created successfully!"
+          echo "📦 Version: ${{ needs.create-release.outputs.version }}"
+          echo "🔗 URL: https://github.com/${{ github.repository }}/releases"
+
+      - name: Release Failure Notification
+        if: needs.create-release.result == 'failure'
+        run: |
+          echo "❌ Release creation failed"
+          echo "🔍 Check workflow logs for details"
+          echo "🛠️ Manual intervention may be required"
