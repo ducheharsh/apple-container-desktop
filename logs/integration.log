@@ -1,0 +1,26 @@
+[2025-06-28T00:29:52.749Z] 🚀 Starting integration for Apple Container 0.2.0
+[2025-06-28T00:29:52.752Z] 💾 Creating backup before integration...
+[2025-06-28T00:29:52.753Z] ✅ Backup created: /workspace/backups/pre-0.2.0
+[2025-06-28T00:29:52.754Z] 📦 Updating containerUtils.js...
+[2025-06-28T00:29:52.754Z] Adding support for new commands: new-command-detected, registry, network
+[2025-06-28T00:29:52.755Z] ✅ containerUtils.js updated successfully
+[2025-06-28T00:29:52.755Z] 🎨 Updating UI components...
+[2025-06-28T00:29:52.755Z] 🔧 Adding support for 'container new-command-detected' command
+[2025-06-28T00:29:52.756Z] 🔧 Adding support for 'container registry' command
+[2025-06-28T00:29:52.757Z] Page Registry.jsx already exists, skipping creation
+[2025-06-28T00:29:52.758Z] ✅ Added Registry to sidebar navigation
+[2025-06-28T00:29:52.758Z] 🔧 Adding support for 'container network' command
+[2025-06-28T00:29:52.759Z] ✅ Created new page: Network.jsx
+[2025-06-28T00:29:52.759Z] ✅ Updated routes index with Network
+[2025-06-28T00:29:52.760Z] ✅ Added Network to sidebar navigation
+[2025-06-28T00:29:52.760Z] 📄 Updating version information...
+[2025-06-28T00:29:52.761Z] ✅ Updated package.json to version 1.1.1
+[2025-06-28T00:29:52.761Z] ✅ Updated Tauri config to version 1.1.1
+[2025-06-28T00:29:52.762Z] 📝 Generating release notes...
+[2025-06-28T00:29:52.762Z] ✅ Release notes generated successfully
+[2025-06-28T00:29:52.763Z] 🧪 Running integration tests...
+[2025-06-28T00:29:52.844Z] ❌ Tests failed: Command failed: npm test -- --watchAll=false --passWithNoTests
+sh: 1: react-scripts: not found
+
+[2025-06-28T00:29:52.844Z] ⚠️ Integration completed with test failures
+[2025-06-28T00:29:52.844Z] 📋 Manual review required before release

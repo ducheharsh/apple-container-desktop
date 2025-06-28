@@ -1,6 +1,6 @@
 {
   "name": "container-gui",
-  "version": "1.1.1",
+  "version": "1.1.0",
   "private": true,
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
@@ -57,6 +57,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "description": "Modern GUI for Apple Container CLI (supports 0.2.0)"
+  }
 }

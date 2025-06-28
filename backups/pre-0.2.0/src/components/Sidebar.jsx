@@ -57,22 +57,6 @@ const Sidebar = () => {
             </Link>
           );
         })}
-              <Link
-          to="/registry"
-          className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <span className="text-gray-600">🔧</span>
-          <span>Registry</span>
-          <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-1 rounded">New</span>
-        </Link>
-              <Link
-          to="/network"
-          className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <span className="text-gray-600">🔧</span>
-          <span>Network</span>
-          <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-1 rounded">New</span>
-        </Link>
       </nav>
       
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">

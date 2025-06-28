@@ -6,3 +6,14 @@
 [2025-06-28T00:27:48.618Z] 🔍 Checking for new releases...
 [2025-06-28T00:27:48.871Z] 🎉 New release detected: 0.2.0
 [2025-06-28T00:27:48.873Z] 💥 Failed to start monitor: String.prototype.matchAll called with a non-global RegExp argument
+[2025-06-28T00:29:52.500Z] 🚀 Starting Apple Container Release Monitor
+[2025-06-28T00:29:52.503Z] 🔍 Checking for new releases...
+[2025-06-28T00:29:52.723Z] 🎉 New release detected: 0.2.0
+[2025-06-28T00:29:52.726Z] Release report saved: /workspace/reports/release-0.2.0-1751070592726.json
+[2025-06-28T00:29:52.727Z] 🔄 Triggering integration workflow...
+[2025-06-28T00:29:52.847Z] ✅ Integration workflow completed
+[2025-06-28T00:29:52.847Z] ⏰ Monitor started - checking every 30 minutes
+[2025-06-28T00:44:52.071Z] 🛑 Monitor stopped by user
+[2025-06-28T00:45:34.788Z] 🔍 Checking for new releases...
+[2025-06-28T00:45:35.034Z] ✅ No new releases (current: 0.2.0)
+[2025-06-28T00:45:35.035Z] ✅ Single check completed - no new releases

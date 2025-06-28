@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-06-28T00:29:52.725Z",
+  "release": {
+    "tag": "0.2.0",
+    "name": "0.2.0",
+    "published": "2025-06-27T22:06:34Z",
+    "url": "https://github.com/apple/container/releases/tag/0.2.0",
+    "prerelease": false
+  },
+  "analysis": {
+    "version": "0.2.0",
+    "releaseDate": "2025-06-27T22:06:34Z",
+    "isPrerelease": false,
+    "isDraft": false,
+    "features": [
+      "* Add new `system status` command by @gonzolino in https://github.com/apple/container/pull/118",
+      "* Add issue templates for bugs and features by @katiewasnothere in https://github.com/apple/container/pull/152",
+      "* Move github issues to use feature and bug Types instead of Labels by @katiewasnothere in https://github.com/apple/container/pull/258",
+      "## New Contributors"
+    ],
+    "breakingChanges": [],
+    "commands": [
+      "new-command-detected",
+      "registry",
+      "network"
+    ],
+    "flags": [],
+    "deprecations": [
+      "* Remove use of REPO_READ token by @katiewasnothere in https://github.com/apple/container/pull/124",
+      "* Remove unused flags from registry login by @katiewasnothere in https://github.com/apple/container/pull/128",
+      "* Removes build variable that is not needed after launch. by @jglogan in https://github.com/apple/container/pull/151",
+      "* Remove trailing whitespace from GitHub workflows by @pstoeckle in https://github.com/apple/container/pull/154",
+      "* Remove temporary workaround for image auth to ghcr by @katiewasnothere in https://github.com/apple/container/pull/155",
+      "* Remove the system restart command by @adityaramani in https://github.com/apple/container/pull/196",
+      "* Remove editor specific git ignore rules by @katiewasnothere in https://github.com/apple/container/pull/197",
+      "* Plugins: Remove unused devnull var by @dcantah in https://github.com/apple/container/pull/214",
+      "* Fix Race Condition in Container Removal (#130) by @ramsyana in https://github.com/apple/container/pull/218",
+      "* Remove `@unchecked Sendable` by @dkovba in https://github.com/apple/container/pull/250",
+      "* Remove the support for `CURRENT_SDK` by @dkovba in https://github.com/apple/container/pull/251",
+      "* Remove use of triage label by @katiewasnothere in https://github.com/apple/container/pull/262"
+    ],
+    "bugFixes": [
+      "* Fix small typo in README by @owenarthur in https://github.com/apple/container/pull/56",
+      "* Fix typo in Parser.swift by @sadikkuzu in https://github.com/apple/container/pull/64",
+      "* Clean up typos in docs, fix reference to default subnet by @owenarthur in https://github.com/apple/container/pull/71",
+      "* Add issue templates for bugs and features by @katiewasnothere in https://github.com/apple/container/pull/152",
+      "* fix: typo by @umitdemirci in https://github.com/apple/container/pull/153",
+      "* Fix: consolidate UserDefaults service name by @yibozhuang in https://github.com/apple/container/pull/161",
+      "* container registry login host:port error fix by @makhov in https://github.com/apple/container/pull/170",
+      "* Fix release workflow: tag regex, artifact validation, and token usage by @Thedarkmatter10 in https://github.com/apple/container/pull/187",
+      "* Fix typos by @pstoeckle in https://github.com/apple/container/pull/122",
+      "* fix(common.yml): globalize CURRENT_SDK, improve shell safety and  imp… by @Thedarkmatter10 in https://github.com/apple/container/pull/178",
+      "* refactor: fix typos by @noritaka1166 in https://github.com/apple/container/pull/77",
+      "* Fix warnings in `make docs` by @dkovba in https://github.com/apple/container/pull/220",
+      "* Fix Race Condition in Container Removal (#130) by @ramsyana in https://github.com/apple/container/pull/218",
+      "* Fix typo in technical-overview.md by @johnspurlock in https://github.com/apple/container/pull/253",
+      "* Move github issues to use feature and bug Types instead of Labels by @katiewasnothere in https://github.com/apple/container/pull/258"
+    ]
+  },
+  "recommendations": [
+    "Update CLI command mappings in containerUtils.js",
+    "Review features for potential UI integration"
+  ],
+  "integrationTasks": [
+    "Add new command support to Tauri backend",
+    "Plan new UI components for enhanced features"
+  ]
+}

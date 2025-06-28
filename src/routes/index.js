@@ -1,5 +1,9 @@
+import Network from './Network';
 // Route exports for easier imports
-export { default as Dashboard } from './Dashboard';
+export {
+  default as Dashboard,
+  Network
+} from './Dashboard';
 export { default as RunContainer } from './RunContainer';
 export { default as Logs } from './Logs';
 export { default as Images } from './Images';

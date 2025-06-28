@@ -190,40 +190,4 @@ export const parseContainerOutput = (output, format = 'table') => {
     });
     return obj;
   });
-
-  // Auto-generated support for container new-command-detected
-  async executeNew-command-detected(options = {}) {
-    const args = ['new-command-detected'];
-    
-    // Add common flags
-    if (options.format) args.push('--format', options.format);
-    if (options.all) args.push('--all');
-    if (options.verbose) args.push('--verbose');
-    
-    return await this.executeCommand(args, options);
-  },
-
-  // Auto-generated support for container registry
-  async executeRegistry(options = {}) {
-    const args = ['registry'];
-    
-    // Add common flags
-    if (options.format) args.push('--format', options.format);
-    if (options.all) args.push('--all');
-    if (options.verbose) args.push('--verbose');
-    
-    return await this.executeCommand(args, options);
-  },
-
-  // Auto-generated support for container network
-  async executeNetwork(options = {}) {
-    const args = ['network'];
-    
-    // Add common flags
-    if (options.format) args.push('--format', options.format);
-    if (options.all) args.push('--all');
-    if (options.verbose) args.push('--verbose');
-    
-    return await this.executeCommand(args, options);
-  },
 }; 

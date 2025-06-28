@@ -184,19 +184,43 @@ class AppleContainerMonitor {
 
       // Extract commands
       patterns.commands.forEach(pattern => {
-        const matches = trimmedLine.matchAll(pattern);
-        for (const match of matches) {
-          if (match[1] && !analysis.commands.includes(match[1])) {
-            analysis.commands.push(match[1]);
+        if (pattern.global) {
+          // Use matchAll for global patterns
+          try {
+            const matches = trimmedLine.matchAll(pattern);
+            for (const match of matches) {
+              if (match[1] && !analysis.commands.includes(match[1])) {
+                analysis.commands.push(match[1]);
+              }
+            }
+          } catch (error) {
+            // Fallback for matchAll errors
+            const match = trimmedLine.match(pattern);
+            if (match && match[1] && !analysis.commands.includes(match[1])) {
+              analysis.commands.push(match[1]);
+            }
+          }
+        } else {
+          // Use test for non-global patterns (like /new.{0,20}command/i)
+          if (pattern.test(trimmedLine) && !analysis.commands.includes('new-command-detected')) {
+            analysis.commands.push('new-command-detected');
           }
         }
       });
 
       // Extract flags
-      const flagMatches = trimmedLine.matchAll(patterns.flags[0]);
-      for (const match of flagMatches) {
-        if (match[1] && !analysis.flags.includes(`--${match[1]}`)) {
-          analysis.flags.push(`--${match[1]}`);
+      try {
+        const flagMatches = trimmedLine.matchAll(patterns.flags[0]);
+        for (const match of flagMatches) {
+          if (match[1] && !analysis.flags.includes(`--${match[1]}`)) {
+            analysis.flags.push(`--${match[1]}`);
+          }
+        }
+      } catch (error) {
+        // Fallback for patterns without global flag
+        const flagMatch = trimmedLine.match(patterns.flags[0]);
+        if (flagMatch && flagMatch[1] && !analysis.flags.includes(`--${flagMatch[1]}`)) {
+          analysis.flags.push(`--${flagMatch[1]}`);
         }
       }
 
@@ -353,6 +377,9 @@ class AppleContainerMonitor {
 if (require.main === module) {
   const monitor = new AppleContainerMonitor();
   
+  // Check for single-check flag
+  const singleCheck = process.argv.includes('--single-check');
+  
   process.on('SIGINT', async () => {
     await monitor.log('🛑 Monitor stopped by user');
     process.exit(0);
@@ -363,10 +390,26 @@ if (require.main === module) {
     process.exit(1);
   });
   
-  monitor.start().catch(async (error) => {
-    await monitor.log(`💥 Failed to start monitor: ${error.message}`);
-    process.exit(1);
-  });
+  if (singleCheck) {
+    // Run a single check and exit
+    monitor.checkForNewReleases().then(async (newRelease) => {
+      if (newRelease) {
+        await monitor.log('✅ Single check completed - new release processed');
+      } else {
+        await monitor.log('✅ Single check completed - no new releases');
+      }
+      process.exit(0);
+    }).catch(async (error) => {
+      await monitor.log(`💥 Single check failed: ${error.message}`);
+      process.exit(1);
+    });
+  } else {
+    // Start continuous monitoring
+    monitor.start().catch(async (error) => {
+      await monitor.log(`💥 Failed to start monitor: ${error.message}`);
+      process.exit(1);
+    });
+  }
 }
 
 module.exports = AppleContainerMonitor;
