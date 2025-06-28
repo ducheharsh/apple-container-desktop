@@ -1,0 +1,35 @@
+[2025-06-28T00:27:13.816Z] 🚀 Starting integration test suite...
+[2025-06-28T00:27:13.819Z] 🧪 Running test: Container CLI Availability
+[2025-06-28T00:27:13.822Z] ❌ Test failed: Container CLI Availability - Apple Container CLI not available or not in PATH
+[2025-06-28T00:27:13.823Z] 🧪 Running test: Package.json Integrity
+[2025-06-28T00:27:13.825Z] ✅ Test passed: Package.json Integrity (1ms)
+[2025-06-28T00:27:13.826Z] 🧪 Running test: Tauri Config Integrity
+[2025-06-28T00:27:13.827Z] ✅ Test passed: Tauri Config Integrity (0ms)
+[2025-06-28T00:27:13.828Z] 🧪 Running test: ContainerUtils Integrity
+[2025-06-28T00:27:13.832Z] ❌ Test failed: ContainerUtils Integrity - ContainerUtils integrity check failed: Syntax error in containerUtils.js: Unexpected token 'export'
+[2025-06-28T00:27:13.833Z] 🧪 Running test: UI Components Integrity
+[2025-06-28T00:27:13.836Z] ✅ Test passed: UI Components Integrity (2ms)
+[2025-06-28T00:27:13.837Z] 🧪 Running test: New Features Integration
+[2025-06-28T00:27:13.838Z] ℹ️ No auto-generated features found in src/utils/containerUtils.js
+[2025-06-28T00:27:13.838Z] ℹ️ No auto-generated features found in src/routes/RunContainer.jsx
+[2025-06-28T00:27:13.839Z] ℹ️ No auto-generated features found in src/routes/BuildImage.jsx
+[2025-06-28T00:27:13.839Z] ✅ Test passed: New Features Integration (2ms)
+[2025-06-28T00:27:13.839Z] 🧪 Running test: Container Command Execution
+[2025-06-28T00:27:13.841Z] ⚠️ Command failed (may be expected): container --help
+[2025-06-28T00:27:13.843Z] ⚠️ Command failed (may be expected): container version
+[2025-06-28T00:27:13.845Z] ⚠️ Command failed (may be expected): container system info
+[2025-06-28T00:27:13.845Z] ✅ Test passed: Container Command Execution (5ms)
+[2025-06-28T00:27:13.845Z] 🧪 Running test: Project Build
+[2025-06-28T00:27:13.846Z] Building React application...
+[2025-06-28T00:27:13.924Z] ❌ Test failed: Project Build - Build failed: Command failed: npm run build
+sh: 1: react-scripts: not found
+
+[2025-06-28T00:27:13.926Z] 📄 Test report generated: /workspace/reports/test-report.json
+[2025-06-28T00:27:13.926Z] 
+[2025-06-28T00:27:13.926Z] 📊 Test Results Summary:
+[2025-06-28T00:27:13.926Z]    Total: 8
+[2025-06-28T00:27:13.926Z]    Passed: 5 ✅
+[2025-06-28T00:27:13.926Z]    Failed: 3 ❌
+[2025-06-28T00:27:13.927Z]    Duration: 10ms
+[2025-06-28T00:27:13.927Z] 
+[2025-06-28T00:27:13.927Z] ❌ Failed tests:

@@ -1,0 +1,8 @@
+[2025-06-28T00:27:01.845Z] 🚀 Starting Apple Container Release Monitor
+[2025-06-28T00:27:01.848Z] 🔍 Checking for new releases...
+[2025-06-28T00:27:02.087Z] 🎉 New release detected: 0.2.0
+[2025-06-28T00:27:02.089Z] 💥 Failed to start monitor: String.prototype.matchAll called with a non-global RegExp argument
+[2025-06-28T00:27:48.616Z] 🚀 Starting Apple Container Release Monitor
+[2025-06-28T00:27:48.618Z] 🔍 Checking for new releases...
+[2025-06-28T00:27:48.871Z] 🎉 New release detected: 0.2.0
+[2025-06-28T00:27:48.873Z] 💥 Failed to start monitor: String.prototype.matchAll called with a non-global RegExp argument

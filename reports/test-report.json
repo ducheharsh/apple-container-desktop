@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-06-28T00:27:13.925Z",
+  "summary": {
+    "total": 8,
+    "passed": 5,
+    "failed": 3,
+    "duration": 10
+  },
+  "tests": [
+    {
+      "name": "Container CLI Availability",
+      "status": "FAILED",
+      "duration": 0,
+      "error": "Apple Container CLI not available or not in PATH"
+    },
+    {
+      "name": "Package.json Integrity",
+      "status": "PASSED",
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "Tauri Config Integrity",
+      "status": "PASSED",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "ContainerUtils Integrity",
+      "status": "FAILED",
+      "duration": 0,
+      "error": "ContainerUtils integrity check failed: Syntax error in containerUtils.js: Unexpected token 'export'"
+    },
+    {
+      "name": "UI Components Integrity",
+      "status": "PASSED",
+      "duration": 2,
+      "error": null
+    },
+    {
+      "name": "New Features Integration",
+      "status": "PASSED",
+      "duration": 2,
+      "error": null
+    },
+    {
+      "name": "Container Command Execution",
+      "status": "PASSED",
+      "duration": 5,
+      "error": null
+    },
+    {
+      "name": "Project Build",
+      "status": "FAILED",
+      "duration": 0,
+      "error": "Build failed: Command failed: npm run build\nsh: 1: react-scripts: not found\n"
+    }
+  ],
+  "environment": {
+    "nodeVersion": "v22.16.0",
+    "platform": "linux",
+    "arch": "x64"
+  }
+}
