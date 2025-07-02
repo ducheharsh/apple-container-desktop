@@ -8,9 +8,12 @@ set -e
 echo "🚀 Container GUI Release Packaging"
 echo "=================================="
 
+# Ask for the version
+read -p "Enter the version: " VERSION
+echo "You entered: $VERSION"
+
 # Configuration
 APP_NAME="Container GUI"
-VERSION="1.1.0"
 BUILD_DIR="src-tauri/target/release/bundle"
 RELEASE_DIR="release"
 DATE=$(date +%Y%m%d)
@@ -59,29 +62,11 @@ Release Date: $(date)
 Platform: macOS (Apple Silicon)
 Architecture: aarch64
 
+# get the latest release info from the release.md file
+RELEASE_INFO=$(cat RELEASE.md)
+
 🎉 NEW FEATURES IN v$VERSION:
-✨ Container Image Marketplace
-   - Browse 16+ featured images (nginx, redis, postgres, etc.)
-   - Real-time search across Docker Hub registry
-   - Smart categories and filtering
-   - Official image badges and verification
-
-⬇️ Enhanced Download Experience
-   - One-click image pulls with progress tracking
-   - Local image detection and status badges
-   - Smart button states (Pull → Pulling... → Installed)
-   - Persistent state across tab navigation
-
-🔧 Apple Container CLI Integration
-   - Fixed command structure for Apple's container CLI
-   - Proper JSON parsing and image reference handling
-   - Support for both short and full image names
-
-🎨 Improved User Experience
-   - Modern card-based design with hover effects
-   - Real-time progress indicators and status updates
-   - Smart caching and background monitoring
-   - Cross-tab state persistence
+$RELEASE_INFO
 
 Files included:
 - Container GUI.app (Application Bundle)
@@ -104,18 +89,9 @@ System Requirements:
 - Apple Container CLI v0.1.0+ installed
 - Internet connection for Docker Hub integration
 
-What's New:
-- 🛍️ Complete Container Image Marketplace
-- 🔍 Real-time Docker Hub search and discovery
-- 📊 Live image statistics and metadata
-- ⬇️ Advanced download management with progress tracking
-- 🔄 Persistent state management across navigation
-- 🎨 Enhanced UI/UX with modern design patterns
-
 Support:
 - Check system requirements in the app
 - Verify container CLI with: container --version
-- Test marketplace with: Search for "nginx" or browse featured images
 EOF
 
 cd ..

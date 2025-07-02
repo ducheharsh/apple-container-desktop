@@ -133,25 +133,41 @@ const Marketplace = () => {
     const currentPulling = Array.from(pullingImages);
     const progressKeys = Object.keys(pullProgress);
     
-    const updatedProgress = { ...pullProgress };
-    let hasChanges = false;
+    let updatedProgress = { ...pullProgress };
+    let updatedPulling = new Set(pullingImages);
+    let hasProgressChanges = false;
+    let hasPullingChanges = false;
     
     progressKeys.forEach(key => {
-      // Remove progress entries for images that are no longer being pulled
+      const progress = pullProgress[key];
+      
+      // If image is marked as local but still showing as pulling, clear the pulling state
+      const isLocal = localImages.has(key) || localImages.has(key.split('/').pop()) || localImages.has(key.split(':')[0]);
+      
+      if (isLocal && currentPulling.includes(key)) {
+        updatedPulling.delete(key);
+        delete updatedProgress[key];
+        hasProgressChanges = true;
+        hasPullingChanges = true;
+        return;
+      }
+      
+      // Remove progress entries that seem stuck (not pulling anymore but have stale progress)
       if (!currentPulling.includes(key)) {
-        const progress = pullProgress[key];
-        // Only keep completed or error states briefly, remove stuck "downloading" states
-        if (progress && !progress.includes('completed') && !progress.includes('Error')) {
-          delete updatedProgress[key];
-          hasChanges = true;
-        }
+        // Remove any stale progress entries
+        delete updatedProgress[key];
+        hasProgressChanges = true;
       }
     });
     
-    if (hasChanges) {
+    if (hasProgressChanges) {
       setPullProgress(updatedProgress);
     }
-  }, [pullingImages, pullProgress]);
+    
+    if (hasPullingChanges) {
+      setPullingImages(updatedPulling);
+    }
+  }, [pullingImages, pullProgress, localImages]);
 
   const checkLocalImages = useCallback(async () => {
     setCheckingImages(true);
@@ -185,6 +201,10 @@ const Marketplace = () => {
                     localImageNames.add(withoutPrefix);
                     localImageNames.add(withoutPrefix.split(':')[0]);
                   }
+                } else {
+                  // Handle simple names like "nginx:latest" -> "nginx"
+                  const shortName = reference.split(':')[0];
+                  localImageNames.add(shortName);
                 }
               }
             });
@@ -194,13 +214,18 @@ const Marketplace = () => {
         }
         
         setLocalImages(localImageNames);
+        
+        // Run cleanup immediately after updating local images
+        setTimeout(() => {
+          cleanupOldProgress();
+        }, 100);
       }
     } catch (error) {
       console.error('Failed to check local images:', error);
     } finally {
       setCheckingImages(false);
     }
-  }, []);
+  }, [cleanupOldProgress]);
 
   const loadFeaturedImages = useCallback(async () => {
     setLoading(true);
@@ -277,10 +302,13 @@ const Marketplace = () => {
         // Check if any images were actually pulled by checking local images
         checkLocalImages();
       }
-    }, 10000); // Check every 10 seconds
+      
+      // Always run cleanup to clear any stuck states
+      cleanupOldProgress();
+    }, 5000); // Check every 5 seconds
 
     return () => clearInterval(interval);
-  }, [pullingImages, checkLocalImages]);
+  }, [pullingImages, checkLocalImages, cleanupOldProgress]);
 
   const fetchImageDetails = async (imageName, namespace = 'library') => {
     try {
@@ -330,10 +358,23 @@ const Marketplace = () => {
     searchImages(searchQuery);
   };
 
-  const handlePullImage = async (image) => {
+  const handlePullImage = useCallback(async (image) => {
     const imageKey = image.fullName;
     setPullingImages(prev => new Set(prev).add(imageKey));
     setPullProgress(prev => ({ ...prev, [imageKey]: 'Starting pull...' }));
+
+    const clearPullState = () => {
+      setPullProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[imageKey];
+        return newProgress;
+      });
+      setPullingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageKey);
+        return newSet;
+      });
+    };
 
     try {
       const args = ['images', 'pull', image.fullName];
@@ -346,22 +387,16 @@ const Marketplace = () => {
       if (result.success) {
         setPullProgress(prev => ({ ...prev, [imageKey]: 'Pull completed!' }));
         
-        // Update local images list
+        // Update local images list immediately
         await checkLocalImages();
         
-        // Clear progress after a delay
+        // Run cleanup to ensure pulling state is cleared if image is now local
         setTimeout(() => {
-          setPullProgress(prev => {
-            const newProgress = { ...prev };
-            delete newProgress[imageKey];
-            return newProgress;
-          });
-          setPullingImages(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(imageKey);
-            return newSet;
-          });
-        }, 3000);
+          cleanupOldProgress();
+        }, 500);
+        
+        // Clear progress after a shorter delay
+        setTimeout(clearPullState, 2000);
         
         console.log(`Successfully pulled ${image.fullName}`);
       } else {
@@ -369,38 +404,16 @@ const Marketplace = () => {
         console.error(`Failed to pull ${image.fullName}:`, result.stderr);
         
         // Clear error after a delay
-        setTimeout(() => {
-          setPullProgress(prev => {
-            const newProgress = { ...prev };
-            delete newProgress[imageKey];
-            return newProgress;
-          });
-          setPullingImages(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(imageKey);
-            return newSet;
-          });
-        }, 8000);
+        setTimeout(clearPullState, 5000);
       }
     } catch (error) {
       setPullProgress(prev => ({ ...prev, [imageKey]: `Error: ${error.toString()}` }));
       console.error(`Error pulling ${image.fullName}:`, error);
       
       // Clear error after a delay
-      setTimeout(() => {
-        setPullProgress(prev => {
-          const newProgress = { ...prev };
-          delete newProgress[imageKey];
-          return newProgress;
-        });
-        setPullingImages(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(imageKey);
-          return newSet;
-        });
-      }, 8000);
+      setTimeout(clearPullState, 5000);
     }
-  };
+  }, [checkLocalImages, cleanupOldProgress]);
 
   const handleImageClick = async (image) => {
     setSelectedImage(image);
@@ -434,7 +447,21 @@ const Marketplace = () => {
   };
 
   const isImageLocal = (image) => {
-    return localImages.has(image.fullName) || localImages.has(image.name);
+    // Check various formats that might be stored in localImages
+    const namesToCheck = [
+      image.fullName,
+      image.name,
+      image.fullName.split(':')[0], // without tag
+      image.name.split(':')[0], // without tag
+    ];
+    
+    // For official images, also check without docker.io/library prefix
+    if (image.namespace === 'library' || image.fullName.startsWith('library/')) {
+      const withoutLibrary = image.fullName.replace(/^(docker\.io\/)?library\//, '');
+      namesToCheck.push(withoutLibrary, withoutLibrary.split(':')[0]);
+    }
+    
+    return namesToCheck.some(name => localImages.has(name));
   };
 
   const ImageCard = ({ image }) => {
@@ -584,6 +611,8 @@ const Marketplace = () => {
             onClick={() => {
               loadFeaturedImages();
               checkLocalImages();
+              // Clear any stuck pulling states
+              cleanupOldProgress();
             }}
             disabled={loading || checkingImages}
             className="btn-secondary flex items-center space-x-2"

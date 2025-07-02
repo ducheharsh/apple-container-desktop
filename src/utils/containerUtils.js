@@ -103,6 +103,136 @@ export const validateContainerCLI = async (invoke) => {
 };
 
 /**
+ * Checks if the container system is running
+ * @param {Function} invoke - Tauri invoke function
+ * @returns {Promise<Object>} - System status result
+ */
+export const checkContainerSystemStatus = async (invoke) => {
+  try {
+    const result = await invoke('run_container_command', { args: ['system', 'status'] });
+    
+    // Parse the specific status messages
+    let isRunning = false;
+    let status = null;
+    
+    if (result.success && result.stdout) {
+      const output = result.stdout.trim().toLowerCase();
+      status = result.stdout.trim();
+      
+      console.log('Container system status output:', status);
+      
+      // Check for running status
+      // Message when running: "Verifying apiserver is running...\napiserver is running"
+      if (output.includes('apiserver is running')) {
+        isRunning = true;
+        console.log('Container system detected as running');
+      }
+      // Message when stopped: "apiserver is not running and not registered with launchd"
+      else if (output.includes('apiserver is not running')) {
+        isRunning = false;
+        console.log('Container system detected as not running');
+      }
+      // Fallback check for any "running" indication
+      else if (output.includes('running') && !output.includes('not running')) {
+        isRunning = true;
+        console.log('Container system detected as running (fallback)');
+      } else {
+        console.log('Container system status unclear, assuming not running');
+      }
+    }
+    
+    return {
+      isRunning,
+      status,
+      error: isRunning ? null : (result.stderr || 'Container system is not running')
+    };
+  } catch (error) {
+    return {
+      isRunning: false,
+      status: null,
+      error: error.toString()
+    };
+  }
+};
+
+/**
+ * Starts the container system
+ * @param {Function} invoke - Tauri invoke function
+ * @returns {Promise<Object>} - Start result
+ */
+export const startContainerSystem = async (invoke) => {
+  try {
+    const result = await invoke('run_container_command', { args: ['system', 'start'] });
+    return {
+      success: result.success,
+      stdout: result.stdout,
+      stderr: result.stderr
+    };
+  } catch (error) {
+    return {
+      success: false,
+      stdout: '',
+      stderr: error.toString()
+    };
+  }
+};
+
+/**
+ * Enhanced container command runner with automatic system status checking
+ * @param {Function} invoke - Tauri invoke function
+ * @param {Array} args - Command arguments
+ * @param {Function} showToast - Toast notification function
+ * @returns {Promise<Object>} - Command result with system status checking
+ */
+export const runContainerCommandWithStatusCheck = async (invoke, args, showToast) => {
+  try {
+    const result = await invoke('run_container_command', { args });
+    
+    // If command failed, check if it's due to system not running
+    if (!result.success && result.stderr) {
+      const errorMessage = result.stderr.toLowerCase();
+      
+      // Check for common system not running errors
+      if (errorMessage.includes('not running') || 
+          errorMessage.includes('service unavailable') ||
+          errorMessage.includes('connection refused') ||
+          errorMessage.includes('daemon not running') ||
+          errorMessage.includes('apiserver is not running') ||
+          errorMessage.includes('not registered with launchd')) {
+        
+        // Check system status to confirm
+        const systemStatus = await checkContainerSystemStatus(invoke);
+        
+        if (!systemStatus.isRunning) {
+          if (showToast) {
+            showToast(
+              'Container system is not running. Click the "Start Container System" button in the sidebar to start it.',
+              'error',
+              8000
+            );
+          }
+          
+          return {
+            ...result,
+            systemNotRunning: true,
+            canStartSystem: true
+          };
+        }
+      }
+    }
+    
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      stdout: '',
+      stderr: error.toString(),
+      exit_code: 1
+    };
+  }
+};
+
+/**
  * Common container CLI commands for reference
  */
 export const CONTAINER_COMMANDS = {

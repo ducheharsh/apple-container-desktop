@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Play, Settings, Info, Cpu, HardDrive } from 'lucide-react';
 import CommandOutput from '../components/CommandOutput';
+import { useToast } from '../components/ToastProvider';
+import { runContainerCommandWithStatusCheck } from '../utils/containerUtils';
 
 const RunContainer = () => {
+  const { showSuccess, showError } = useToast();
+  
   const [formData, setFormData] = useState({
     name: '',
     image: '',
@@ -139,10 +143,16 @@ const RunContainer = () => {
       // Ensure all arguments are strings (final validation)
       const validArgs = args.map(arg => String(arg)).filter(arg => arg.length > 0);
 
-      const commandResult = await invoke('run_container_command', { args: validArgs });
+      const commandResult = await runContainerCommandWithStatusCheck(
+        invoke, 
+        validArgs, 
+        showError
+      );
       setResult(commandResult);
 
       if (commandResult.success) {
+        showSuccess(`Container started successfully!`, 5000);
+        
         // Reset form on success
         setFormData({
           name: '',
@@ -160,14 +170,21 @@ const RunContainer = () => {
           arch: '',
           dnsDomain: ''
         });
+      } else if (commandResult.systemNotRunning) {
+        // System status error is already shown by the utility function
+        console.log('Container system is not running');
+      } else {
+        showError(`Failed to start container: ${commandResult.stderr || 'Unknown error'}`, 8000);
       }
     } catch (error) {
-      setResult({
+      const errorResult = {
         success: false,
         stdout: '',
         stderr: error.toString(),
         exit_code: 1
-      });
+      };
+      setResult(errorResult);
+      showError(`Error running container: ${error.toString()}`, 8000);
     } finally {
       setLoading(false);
     }
