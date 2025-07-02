@@ -1,6 +1,6 @@
 {
   "name": "container-gui",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",

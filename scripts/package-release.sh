@@ -8,12 +8,9 @@ set -e
 echo "🚀 Container GUI Release Packaging"
 echo "=================================="
 
-# Ask for the version
-read -p "Enter the version: " VERSION
-echo "You entered: $VERSION"
-
 # Configuration
 APP_NAME="Container GUI"
+VERSION="1.1.1"
 BUILD_DIR="src-tauri/target/release/bundle"
 RELEASE_DIR="release"
 DATE=$(date +%Y%m%d)
@@ -110,11 +107,7 @@ echo ""
 echo "🚀 Ready for distribution!"
 echo ""
 echo "🎉 Container GUI v$VERSION Features:"
-echo "   🛍️  Complete Image Marketplace"
-echo "   🔍  Real-time Docker Hub search" 
-echo "   ⬇️  Advanced download management"
-echo "   🔄  Persistent state across tabs"
-echo "   🎨  Enhanced UI/UX design"
+echo "$RELEASE_INFO"
 echo ""
 echo "Next steps:"
 echo "1. Test the app: open '$RELEASE_DIR/$APP_NAME.app'"
