@@ -132,10 +132,10 @@ sudo container system start
 #### **1. Test Images Command**
 ```bash
 # Check if this works
-container images ls
+container images list
 
 # This is what the GUI uses
-container images ls --format table
+container images list --format table
 ```
 
 #### **2. Refresh Images**

@@ -16,7 +16,7 @@ const Images = () => {
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const result = await invoke('run_container_command', { args: ['images', 'ls'] });
+      const result = await invoke('run_container_command', { args: ['images', 'list'] });
       
       if (result.success) {
         // Parse the output to create a basic list (Apple Container format: NAME TAG DIGEST)
@@ -187,7 +187,7 @@ const Images = () => {
             onClick={async () => {
               console.log('Testing images command...');
               try {
-                const result = await invoke('run_container_command', { args: ['images', 'ls'] });
+                const result = await invoke('run_container_command', { args: ['images', 'list'] });
                 console.log('Test result:', result);
                 alert(`Images command test:\nSuccess: ${result.success}\nOutput: ${result.stdout.substring(0, 100)}...`);
               } catch (error) {
