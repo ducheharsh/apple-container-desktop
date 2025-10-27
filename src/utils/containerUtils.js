@@ -250,7 +250,7 @@ export const CONTAINER_COMMANDS = {
   PUSH: ['images', 'push'],
   BUILD: 'build',
   TAG: 'tag',
-  IMAGES: ['images', 'ls'],
+  IMAGES: ['images', 'list'],
   
   // System management
   SYSTEM_START: ['system', 'start'],

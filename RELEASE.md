@@ -192,7 +192,7 @@ npm run release
 - `container start/stop/restart` - Container lifecycle
 - `container delete` - Remove containers
 - `container logs --follow` - Real-time log streaming
-- `container images ls/pull/push/delete` - Image operations
+- `container images list/pull/push/delete` - Image operations
 - `container build` - Build from Dockerfile
 - `container registry login/logout` - Authentication
 - `container system start/stop` - Daemon control

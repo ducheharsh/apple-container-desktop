@@ -15,6 +15,7 @@ import {
 import clsx from 'clsx';
 import { useTheme } from './ThemeProvider';
 import ContainerSystemStatus from './ContainerSystemStatus';
+import packageJson from '../../package.json';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -91,7 +92,7 @@ const Sidebar = () => {
       
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          Container GUI v1.0.0
+          Container GUI v{packageJson.version}
         </div>
       </div>
     </div>
