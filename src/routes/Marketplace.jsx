@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { 
-  Search, 
-  Download, 
-  Star, 
+import {
+  Search,
+  Download,
+  Star,
   Shield,
   Package,
   Filter,
@@ -50,30 +50,30 @@ const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  
+
   // Persistent state - restored from localStorage
   const [pullingImages, setPullingImages] = useState(() => {
     const stored = loadFromStorage(STORAGE_KEYS.PULLING_IMAGES, []);
     return new Set(stored);
   });
-  
+
   const [pullProgress, setPullProgress] = useState(() => {
     return loadFromStorage(STORAGE_KEYS.PULL_PROGRESS, {});
   });
-  
+
   const [localImages, setLocalImages] = useState(() => {
     const timestamp = loadFromStorage(STORAGE_KEYS.LOCAL_IMAGES_TIMESTAMP, 0);
     const now = Date.now();
-    
+
     // If cache is still valid, use cached data
     if (now - timestamp < CACHE_DURATION) {
       const cached = loadFromStorage(STORAGE_KEYS.LOCAL_IMAGES, []);
       return new Set(cached);
     }
-    
+
     return new Set();
   });
-  
+
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageDetails, setImageDetails] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -132,18 +132,18 @@ const Marketplace = () => {
   const cleanupOldProgress = useCallback(() => {
     const currentPulling = Array.from(pullingImages);
     const progressKeys = Object.keys(pullProgress);
-    
+
     let updatedProgress = { ...pullProgress };
     let updatedPulling = new Set(pullingImages);
     let hasProgressChanges = false;
     let hasPullingChanges = false;
-    
+
     progressKeys.forEach(key => {
       const progress = pullProgress[key];
-      
+
       // If image is marked as local but still showing as pulling, clear the pulling state
       const isLocal = localImages.has(key) || localImages.has(key.split('/').pop()) || localImages.has(key.split(':')[0]);
-      
+
       if (isLocal && currentPulling.includes(key)) {
         updatedPulling.delete(key);
         delete updatedProgress[key];
@@ -151,7 +151,7 @@ const Marketplace = () => {
         hasPullingChanges = true;
         return;
       }
-      
+
       // Remove progress entries that seem stuck (not pulling anymore but have stale progress)
       if (!currentPulling.includes(key)) {
         // Remove any stale progress entries
@@ -159,11 +159,11 @@ const Marketplace = () => {
         hasProgressChanges = true;
       }
     });
-    
+
     if (hasProgressChanges) {
       setPullProgress(updatedProgress);
     }
-    
+
     if (hasPullingChanges) {
       setPullingImages(updatedPulling);
     }
@@ -172,29 +172,29 @@ const Marketplace = () => {
   const checkLocalImages = useCallback(async () => {
     setCheckingImages(true);
     try {
-      const result = await invoke('run_container_command', { args: ['images', 'list', '--format', 'json'] });
-      
+      const result = await invoke('run_container_command', { args: ['image', 'list', '--format', 'json'] });
+
       if (result.success && result.stdout) {
         const localImageNames = new Set();
-        
+
         try {
           const imagesData = JSON.parse(result.stdout);
-          
+
           if (Array.isArray(imagesData)) {
             imagesData.forEach(imageItem => {
               if (imageItem.reference) {
                 const reference = imageItem.reference;
-                
+
                 // Add the full reference
                 localImageNames.add(reference);
-                
+
                 // Extract and add the short name (e.g., "nginx" from "docker.io/library/nginx:latest")
                 const parts = reference.split('/');
                 if (parts.length >= 2) {
                   const nameWithTag = parts[parts.length - 1]; // "nginx:latest"
                   const shortName = nameWithTag.split(':')[0]; // "nginx"
                   localImageNames.add(shortName);
-                  
+
                   // Also add without the docker.io/library prefix for official images
                   if (reference.startsWith('docker.io/library/')) {
                     const withoutPrefix = reference.replace('docker.io/library/', '');
@@ -212,9 +212,9 @@ const Marketplace = () => {
         } catch (error) {
           console.error('Failed to parse images JSON:', error);
         }
-        
+
         setLocalImages(localImageNames);
-        
+
         // Run cleanup immediately after updating local images
         setTimeout(() => {
           cleanupOldProgress();
@@ -280,18 +280,18 @@ const Marketplace = () => {
   useEffect(() => {
     loadFeaturedImages();
     setCategories(imageCategories);
-    
+
     // Check if we need to refresh local images (cache expired or empty)
     const timestamp = loadFromStorage(STORAGE_KEYS.LOCAL_IMAGES_TIMESTAMP, 0);
     const now = Date.now();
-    
+
     if (now - timestamp >= CACHE_DURATION || localImages.size === 0) {
       checkLocalImages();
     }
-    
+
     // Clean up any stuck progress states
     cleanupOldProgress();
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -302,7 +302,7 @@ const Marketplace = () => {
         // Check if any images were actually pulled by checking local images
         checkLocalImages();
       }
-      
+
       // Always run cleanup to clear any stuck states
       cleanupOldProgress();
     }, 5000); // Check every 5 seconds
@@ -331,7 +331,7 @@ const Marketplace = () => {
     try {
       const response = await fetch(`https://hub.docker.com/v2/search/repositories/?query=${encodeURIComponent(query)}&page_size=20`);
       const data = await response.json();
-      
+
       const enrichedResults = data.results?.map(result => ({
         name: result.repo_name?.split('/').pop() || result.repo_name,
         fullName: result.repo_name,
@@ -377,39 +377,39 @@ const Marketplace = () => {
     };
 
     try {
-      const args = ['images', 'pull', image.fullName];
-      
+      const args = ['image', 'pull', image.fullName];
+
       // Simulate progress updates
       setPullProgress(prev => ({ ...prev, [imageKey]: 'Downloading layers...' }));
-      
+
       const result = await invoke('run_container_command', { args });
-      
+
       if (result.success) {
         setPullProgress(prev => ({ ...prev, [imageKey]: 'Pull completed!' }));
-        
+
         // Update local images list immediately
         await checkLocalImages();
-        
+
         // Run cleanup to ensure pulling state is cleared if image is now local
         setTimeout(() => {
           cleanupOldProgress();
         }, 500);
-        
+
         // Clear progress after a shorter delay
         setTimeout(clearPullState, 2000);
-        
+
         console.log(`Successfully pulled ${image.fullName}`);
       } else {
         setPullProgress(prev => ({ ...prev, [imageKey]: `Error: ${result.stderr}` }));
         console.error(`Failed to pull ${image.fullName}:`, result.stderr);
-        
+
         // Clear error after a delay
         setTimeout(clearPullState, 5000);
       }
     } catch (error) {
       setPullProgress(prev => ({ ...prev, [imageKey]: `Error: ${error.toString()}` }));
       console.error(`Error pulling ${image.fullName}:`, error);
-      
+
       // Clear error after a delay
       setTimeout(clearPullState, 5000);
     }
@@ -454,13 +454,13 @@ const Marketplace = () => {
       image.fullName.split(':')[0], // without tag
       image.name.split(':')[0], // without tag
     ];
-    
+
     // For official images, also check without docker.io/library prefix
     if (image.namespace === 'library' || image.fullName.startsWith('library/')) {
       const withoutLibrary = image.fullName.replace(/^(docker\.io\/)?library\//, '');
       namesToCheck.push(withoutLibrary, withoutLibrary.split(':')[0]);
     }
-    
+
     return namesToCheck.some(name => localImages.has(name));
   };
 
@@ -478,7 +478,7 @@ const Marketplace = () => {
           </>
         );
       }
-      
+
       if (isLocal) {
         return (
           <>
@@ -487,7 +487,7 @@ const Marketplace = () => {
           </>
         );
       }
-      
+
       return (
         <>
           <Download className="h-3 w-3" />
@@ -504,7 +504,7 @@ const Marketplace = () => {
     };
 
     return (
-      <div 
+      <div
         className="card hover:shadow-lg transition-shadow cursor-pointer"
         onClick={() => handleImageClick(image)}
       >
@@ -769,7 +769,7 @@ const Marketplace = () => {
             ) : (
               <div className="space-y-4">
                 <p className="text-gray-600">{imageDetails?.description || selectedImage.shortDescription}</p>
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="font-medium">Namespace:</span> {selectedImage.namespace}
@@ -784,7 +784,7 @@ const Marketplace = () => {
                     <span className="font-medium">Stars:</span> {formatNumber(selectedImage.starCount || 0)}
                   </div>
                   <div>
-                    <span className="font-medium">Local Status:</span> 
+                    <span className="font-medium">Local Status:</span>
                     <span className={`ml-1 ${isImageLocal(selectedImage) ? 'text-green-600' : 'text-gray-500'}`}>
                       {isImageLocal(selectedImage) ? 'Installed' : 'Not installed'}
                     </span>
@@ -837,4 +837,4 @@ const Marketplace = () => {
   );
 };
 
-export default Marketplace; 
+export default Marketplace;

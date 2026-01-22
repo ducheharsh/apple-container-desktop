@@ -10,7 +10,7 @@ echo "=================================="
 
 # Configuration
 APP_NAME="Container GUI"
-VERSION="1.1.1"
+VERSION="1.1.2"
 BUILD_DIR="src-tauri/target/release/bundle"
 RELEASE_DIR="release"
 DATE=$(date +%Y%m%d)
@@ -114,4 +114,4 @@ echo "1. Test the app: open '$RELEASE_DIR/$APP_NAME.app'"
 echo "2. Test the DMG: open '$RELEASE_DIR/Container-GUI-$VERSION-aarch64.dmg'"
 echo "3. Test marketplace: Search for images and try pulling"
 echo "4. Upload to GitHub releases"
-echo "5. Share the Container Image Marketplace with users!" 
+echo "5. Share the Container Image Marketplace with users!"

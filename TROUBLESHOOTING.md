@@ -262,4 +262,4 @@ echo $USER
 
 ---
 
-**Still having issues?** The Container GUI System page shows detailed diagnostic information about your setup. 
+**Still having issues?** The Container GUI System page shows detailed diagnostic information about your setup.

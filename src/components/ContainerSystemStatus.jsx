@@ -22,7 +22,7 @@ const ContainerSystemStatus = ({ onStatusChange }) => {
         ...status,
         checking: false
       });
-      
+
       if (onStatusChange) {
         onStatusChange(status.isRunning);
       }
@@ -38,20 +38,20 @@ const ContainerSystemStatus = ({ onStatusChange }) => {
 
   useEffect(() => {
     checkStatus();
-    
+
     // Check status every 30 seconds
     const interval = setInterval(checkStatus, 30000);
-    
+
     return () => clearInterval(interval);
   }, [checkStatus]);
 
   const handleStartSystem = async () => {
     setStartingSystem(true);
     showInfo('Starting container system...', 3000);
-    
+
     try {
       const result = await startContainerSystem(invoke);
-      
+
       if (result.success) {
         showSuccess('Container system started successfully!', 5000);
         // Wait a moment then check status
@@ -88,17 +88,17 @@ const ContainerSystemStatus = ({ onStatusChange }) => {
             <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
           )}
         </div>
-        
+
         <div className="flex-1">
           <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-            {systemStatus.checking ? 'Checking Container System...' : 
-             systemStatus.isRunning ? 'Container System Running' : 
+            {systemStatus.checking ? 'Checking Container System...' :
+             systemStatus.isRunning ? 'Container System Running' :
              'Container System Not Running'}
           </h4>
           {!systemStatus.isRunning && !systemStatus.checking && (
             <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-              {systemStatus.status && systemStatus.status.includes('not registered with launchd') 
-                ? 'API server is not registered with launchd' 
+              {systemStatus.status && systemStatus.status.includes('not registered with launchd')
+                ? 'API server is not registered with launchd'
                 : 'Start the container system to use container features'}
             </p>
           )}
@@ -108,7 +108,7 @@ const ContainerSystemStatus = ({ onStatusChange }) => {
             </p>
           )}
         </div>
-        
+
         {!systemStatus.isRunning && !systemStatus.checking && (
           <button
             onClick={handleStartSystem}
@@ -133,4 +133,4 @@ const ContainerSystemStatus = ({ onStatusChange }) => {
   );
 };
 
-export default ContainerSystemStatus; 
+export default ContainerSystemStatus;

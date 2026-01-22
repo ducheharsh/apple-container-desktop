@@ -73,7 +73,7 @@ container ls --format json --all
 container logs --follow --boot my-container
 container stop my-container
 
-# Image operations  
+# Image operations
 container build --arch arm64 --arch amd64 --tag my-app:latest .
 container images list --format json
 container images push my-app:latest
@@ -102,7 +102,7 @@ container inspect my-container
    ```bash
    # Download from GitHub releases
    # https://github.com/apple/container/releases
-   
+
    # Install and start the system
    container system start
    ```
@@ -112,13 +112,13 @@ container inspect my-container
    # Clone the repository
    git clone https://github.com/your-repo/container-gui.git
    cd container-gui
-   
+
    # Install dependencies
    npm install
-   
+
    # Run in development mode
    npm run tauri dev
-   
+
    # Build for production
    npm run tauri build
    ```

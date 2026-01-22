@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { 
-  Activity, 
-  Server, 
-  Search, 
-  Eye, 
-  Code, 
-  RefreshCw, 
+import {
+  Activity,
+  Server,
+  Search,
+  Eye,
+  Code,
+  RefreshCw,
   HardDrive,
   Cpu,
   Network,
@@ -35,7 +35,7 @@ const System = () => {
   const fetchSystemInfo = async () => {
     setSystemLoading(true);
     try {
-      const result = await invoke('run_container_command', { args: ['system', 'info'] });
+      const result = await invoke('run_container_command', { args: ['system', 'status'] });
       if (result.success) {
         setSystemInfo(result.stdout);
       } else {
@@ -50,10 +50,10 @@ const System = () => {
 
   const fetchContainers = async () => {
     try {
-      const result = await invoke('run_container_command', { 
-        args: ['ls', '--format', 'json', '--all'] 
+      const result = await invoke('run_container_command', {
+        args: ['ls', '--format', 'json', '--all']
       });
-      
+
       if (result.success && result.stdout) {
         try {
           const containerList = JSON.parse(result.stdout);
@@ -71,10 +71,10 @@ const System = () => {
 
   const fetchImages = async () => {
     try {
-      const result = await invoke('run_container_command', { 
-        args: ['images', 'list', '--format', 'json'] 
+      const result = await invoke('run_container_command', {
+        args: ['image', 'list', '--format', 'json']
       });
-      
+
       if (result.success && result.stdout) {
         try {
           const imageList = JSON.parse(result.stdout);
@@ -102,14 +102,14 @@ const System = () => {
       if (itemType === 'container') {
         args = ['inspect', selectedItem];
       } else {
-        args = ['images', 'inspect', selectedItem];
+        args = ['image', 'inspect', selectedItem];
       }
 
       const result = await invoke('run_container_command', { args });
 
       if (result.success) {
         let output = result.stdout || '';
-        
+
         if (formatJson && output.trim()) {
           try {
             // Try to parse and format JSON
@@ -119,7 +119,7 @@ const System = () => {
             // If not valid JSON, keep original output
           }
         }
-        
+
         setInspectResult(output);
       } else {
         setInspectResult(`Error: ${result.stderr || 'Inspection failed'}`);
@@ -160,7 +160,7 @@ const System = () => {
           <Activity className="h-8 w-8 text-primary-600" />
           <h1 className="text-2xl font-bold text-gray-900">System Control</h1>
         </div>
-        
+
         <button
           onClick={handleRefresh}
           disabled={systemLoading}
@@ -246,7 +246,7 @@ const System = () => {
                   className="input-field"
                 >
                   <option value="">-- Select {itemType} --</option>
-                  {itemType === 'container' 
+                  {itemType === 'container'
                     ? containers.map((container) => (
                         <option key={container.configuration?.id || container.id} value={container.configuration?.id || container.id}>
                           {container.configuration?.id || container.id} ({container.status || 'unknown'})
@@ -345,7 +345,7 @@ const System = () => {
                 className="input-field font-mono text-sm resize-none"
                 style={{ height: '600px' }}
                 placeholder={
-                  selectedItem 
+                  selectedItem
                     ? `Click 'Inspect' to view detailed information about ${selectedItem}...`
                     : `Select a ${itemType} and click 'Inspect' to view detailed JSON information...`
                 }
@@ -417,4 +417,4 @@ const System = () => {
   );
 };
 
-export default System; 
+export default System;

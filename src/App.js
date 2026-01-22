@@ -5,15 +5,15 @@ import Sidebar from './components/Sidebar';
 import { TauriProvider } from './components/TauriProvider';
 import { ThemeProvider } from './components/ThemeProvider';
 import { ToastProvider } from './components/ToastProvider';
-import { 
-  Dashboard, 
-  RunContainer, 
-  Logs, 
-  Images, 
-  BuildImage, 
-  Registry, 
-  System, 
-  Marketplace 
+import {
+  Dashboard,
+  RunContainer,
+  Logs,
+  Images,
+  BuildImage,
+  Registry,
+  System,
+  Marketplace
 } from './routes';
 
 function App() {

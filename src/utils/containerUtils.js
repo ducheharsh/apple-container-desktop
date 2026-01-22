@@ -17,7 +17,7 @@ export const validateCommandArgs = (args) => {
  */
 export const extractContainerName = (container, fallbackIndex = 0) => {
   if (!container) return `container-${fallbackIndex}`;
-  
+
   // Try multiple possible name fields
   const possibleNames = [
     container.Names,
@@ -27,14 +27,14 @@ export const extractContainerName = (container, fallbackIndex = 0) => {
     container.ID,
     container.Id
   ];
-  
+
   for (const name of possibleNames) {
     if (name && typeof name === 'string' && name.trim()) {
       // Remove leading slash if present (common in container names)
       return name.startsWith('/') ? name.substring(1) : name;
     }
   }
-  
+
   return `container-${fallbackIndex}`;
 };
 
@@ -46,7 +46,7 @@ export const extractContainerName = (container, fallbackIndex = 0) => {
 export const formatContainerStatus = (container) => {
   const status = container.Status || container.status || container.State || 'Unknown';
   const statusLower = status.toLowerCase();
-  
+
   if (statusLower.includes('running') || statusLower.includes('up')) {
     return {
       text: 'Running',
@@ -56,7 +56,7 @@ export const formatContainerStatus = (container) => {
   } else if (statusLower.includes('exited') || statusLower.includes('stopped')) {
     return {
       text: 'Stopped',
-      class: 'status-stopped', 
+      class: 'status-stopped',
       color: 'red'
     };
   } else if (statusLower.includes('paused')) {
@@ -72,7 +72,7 @@ export const formatContainerStatus = (container) => {
       color: 'blue'
     };
   }
-  
+
   return {
     text: status,
     class: 'status-unknown',
@@ -110,17 +110,17 @@ export const validateContainerCLI = async (invoke) => {
 export const checkContainerSystemStatus = async (invoke) => {
   try {
     const result = await invoke('run_container_command', { args: ['system', 'status'] });
-    
+
     // Parse the specific status messages
     let isRunning = false;
     let status = null;
-    
+
     if (result.success && result.stdout) {
       const output = result.stdout.trim().toLowerCase();
       status = result.stdout.trim();
-      
+
       console.log('Container system status output:', status);
-      
+
       // Check for running status
       // Message when running: "Verifying apiserver is running...\napiserver is running"
       if (output.includes('apiserver is running')) {
@@ -140,7 +140,7 @@ export const checkContainerSystemStatus = async (invoke) => {
         console.log('Container system status unclear, assuming not running');
       }
     }
-    
+
     return {
       isRunning,
       status,
@@ -187,22 +187,22 @@ export const startContainerSystem = async (invoke) => {
 export const runContainerCommandWithStatusCheck = async (invoke, args, showToast) => {
   try {
     const result = await invoke('run_container_command', { args });
-    
+
     // If command failed, check if it's due to system not running
     if (!result.success && result.stderr) {
       const errorMessage = result.stderr.toLowerCase();
-      
+
       // Check for common system not running errors
-      if (errorMessage.includes('not running') || 
+      if (errorMessage.includes('not running') ||
           errorMessage.includes('service unavailable') ||
           errorMessage.includes('connection refused') ||
           errorMessage.includes('daemon not running') ||
           errorMessage.includes('apiserver is not running') ||
           errorMessage.includes('not registered with launchd')) {
-        
+
         // Check system status to confirm
         const systemStatus = await checkContainerSystemStatus(invoke);
-        
+
         if (!systemStatus.isRunning) {
           if (showToast) {
             showToast(
@@ -211,7 +211,7 @@ export const runContainerCommandWithStatusCheck = async (invoke, args, showToast
               8000
             );
           }
-          
+
           return {
             ...result,
             systemNotRunning: true,
@@ -220,7 +220,7 @@ export const runContainerCommandWithStatusCheck = async (invoke, args, showToast
         }
       }
     }
-    
+
     return result;
   } catch (error) {
     return {
@@ -244,22 +244,22 @@ export const CONTAINER_COMMANDS = {
   REMOVE: 'delete',
   DELETE: 'delete',
   LIST: 'ls',
-  
+
   // Image management
-  PULL: ['images', 'pull'],
-  PUSH: ['images', 'push'],
+  PULL: ['image', 'pull'],
+  PUSH: ['image', 'push'],
   BUILD: 'build',
   TAG: 'tag',
-  IMAGES: ['images', 'ls'],
-  
+  IMAGES: ['image', 'ls'],
+
   // System management
   SYSTEM_START: ['system', 'start'],
   SYSTEM_STOP: ['system', 'stop'],
   SYSTEM_STATUS: ['system', 'status'],
-  
+
   // Logs
   LOGS: 'logs',
-  
+
   // Registry
   LOGIN: ['registry', 'login'],
   LOGOUT: ['registry', 'logout']
@@ -291,7 +291,7 @@ export const parseContainerOutput = (output, format = 'table') => {
   if (!output || !output.trim()) {
     return [];
   }
-  
+
   if (format === 'json') {
     try {
       // Handle both single JSON objects and newline-delimited JSON
@@ -306,11 +306,11 @@ export const parseContainerOutput = (output, format = 'table') => {
       return [];
     }
   }
-  
+
   // Default table parsing
   const lines = output.trim().split('\n');
   if (lines.length < 2) return [];
-  
+
   const headers = lines[0].split(/\s+/);
   return lines.slice(1).map(line => {
     const values = line.split(/\s+/);
@@ -320,4 +320,4 @@ export const parseContainerOutput = (output, format = 'table') => {
     });
     return obj;
   });
-}; 
+};

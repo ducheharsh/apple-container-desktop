@@ -62,4 +62,4 @@ const CommandOutput = ({ result, loading, title }) => {
   );
 };
 
-export default CommandOutput; 
+export default CommandOutput;

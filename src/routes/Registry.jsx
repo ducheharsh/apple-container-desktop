@@ -33,22 +33,22 @@ const Registry = () => {
     try {
       // Use Docker Hub registry if none specified
       const registry = loginData.registry || 'registry-1.docker.io';
-      
+
       const args = [
-        'registry', 
-        'login', 
-        '--username', 
-        loginData.username, 
+        'registry',
+        'login',
+        '--username',
+        loginData.username,
         '--password-stdin',
         registry
       ];
 
       // Create a login command that pipes the password
-      const loginResult = await invoke('run_container_command_with_stdin', { 
-        args, 
-        stdin: loginData.password 
+      const loginResult = await invoke('run_container_command_with_stdin', {
+        args,
+        stdin: loginData.password
       });
-      
+
               setResult(loginResult);
 
       if (loginResult && loginResult.success) {
@@ -76,12 +76,12 @@ const Registry = () => {
     setResult(null);
 
     try {
-      const imageToPush = pushData.repository 
+      const imageToPush = pushData.repository
         ? `${pushData.repository}/${pushData.imageName}`
         : pushData.imageName;
 
-      const pushResult = await invoke('run_container_command', { 
-        args: ['images', 'push', imageToPush] 
+      const pushResult = await invoke('run_container_command', {
+        args: ['image', 'push', imageToPush]
       });
       setResult(pushResult);
 
@@ -110,8 +110,8 @@ const Registry = () => {
     setResult(null);
 
     try {
-      const pullResult = await invoke('run_container_command', { 
-        args: ['images', 'pull', pullData.imageName] 
+      const pullResult = await invoke('run_container_command', {
+        args: ['image', 'pull', pullData.imageName]
       });
       setResult(pullResult);
 
@@ -140,8 +140,8 @@ const Registry = () => {
     setResult(null);
 
     try {
-      const registryResult = await invoke('run_container_command', { 
-        args: ['registry', 'default', 'set', defaultRegistry] 
+      const registryResult = await invoke('run_container_command', {
+        args: ['registry', 'default', 'set', defaultRegistry]
       });
       setResult(registryResult);
 
@@ -198,7 +198,7 @@ const Registry = () => {
               </h2>
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> Docker Hub requires authentication for most operations. 
+                  <strong>Note:</strong> Docker Hub requires authentication for most operations.
                   Use your Docker Hub username and password/token to authenticate.
                 </p>
               </div>
@@ -411,8 +411,8 @@ const Registry = () => {
         </div>
 
         <div>
-          <CommandOutput 
-            result={result} 
+          <CommandOutput
+            result={result}
             loading={loading}
             title="Registry Operation Result"
           />
@@ -422,4 +422,4 @@ const Registry = () => {
   );
 };
 
-export default Registry; 
+export default Registry;

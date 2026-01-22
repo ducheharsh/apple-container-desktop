@@ -56,7 +56,7 @@ const BuildImage = () => {
 
       const commandResult = await invoke('run_container_command', { args });
       setResult(commandResult);
-      
+
       if (commandResult.success) {
         setBuilderStatus(action === 'start' ? 'running' : action === 'stop' ? 'stopped' : 'unknown');
       }
@@ -74,7 +74,7 @@ const BuildImage = () => {
 
   const handleBuild = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.tag || !formData.tag.trim()) {
       alert('Please specify an image tag');
       return;
@@ -135,7 +135,7 @@ const BuildImage = () => {
       // Push the image
       const pushArgs = ['images', 'push', formData.tag];
       const pushResult = await invoke('run_container_command', { args: pushArgs });
-      
+
       setResult(prev => ({
         ...pushResult,
         stdout: (prev?.stdout || '') + '\n\n--- PUSH RESULT ---\n' + pushResult.stdout,
@@ -432,8 +432,8 @@ const BuildImage = () => {
           </button>
 
           {/* Command Output */}
-          <CommandOutput 
-            result={result} 
+          <CommandOutput
+            result={result}
             loading={loading}
             title="Build Result"
           />
@@ -443,4 +443,4 @@ const BuildImage = () => {
   );
 };
 
-export default BuildImage; 
+export default BuildImage;

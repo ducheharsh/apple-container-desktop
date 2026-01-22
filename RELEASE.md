@@ -2,8 +2,8 @@
 
 ## 🎉 Container GUI v1.1.0 - Major Marketplace Update
 
-**Release Date**: January 16, 2025  
-**Platform**: macOS (Apple Silicon)  
+**Release Date**: January 16, 2025
+**Platform**: macOS (Apple Silicon)
 **Version**: 1.1.0
 
 ### 🛍️ NEW: Container Image Marketplace
@@ -266,4 +266,4 @@ The application includes built-in system verification:
 
 ---
 
-**Built with ❤️ using React, Tauri, and modern web technologies** 
+**Built with ❤️ using React, Tauri, and modern web technologies**

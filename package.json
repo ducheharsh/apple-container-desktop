@@ -1,6 +1,6 @@
 {
   "name": "container-gui",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
@@ -13,12 +13,12 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.1.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.2.0",
-    "@tauri-apps/tauricon": "^1.0.3",
+    "@tauri-apps/tauricon": "^0.0.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.4.1"

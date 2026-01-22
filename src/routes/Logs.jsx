@@ -37,10 +37,10 @@ const Logs = () => {
 
   const fetchContainers = async () => {
     try {
-      const result = await invoke('run_container_command', { 
-        args: ['ls', '--format', 'json', '--all'] 
+      const result = await invoke('run_container_command', {
+        args: ['ls', '--format', 'json', '--all']
       });
-      
+
       if (result.success && result.stdout) {
         try {
           const containerList = JSON.parse(result.stdout);
@@ -235,8 +235,8 @@ const Logs = () => {
                 <button
                   onClick={handleSystemLogsToggle}
                   className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    showSystemLogs 
-                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                    showSystemLogs
+                      ? 'bg-red-600 text-white hover:bg-red-700'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                   disabled={systemLogsLoading}
@@ -366,8 +366,8 @@ const Logs = () => {
                       onClick={toggleStreaming}
                       disabled={!selectedContainer}
                       className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        streaming 
-                          ? 'bg-red-600 text-white hover:bg-red-700' 
+                        streaming
+                          ? 'bg-red-600 text-white hover:bg-red-700'
                           : 'bg-green-600 text-white hover:bg-green-700'
                       }`}
                     >
@@ -415,7 +415,7 @@ const Logs = () => {
           <div className="card h-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                {showSystemLogs ? 'System Logs' : 
+                {showSystemLogs ? 'System Logs' :
                  selectedContainer ? `Logs for ${selectedContainer}` : 'Container Logs'}
               </h2>
               {streaming && !showSystemLogs && (
@@ -433,9 +433,9 @@ const Logs = () => {
                 className="input-field font-mono text-sm resize-none"
                 style={{ height: '600px' }}
                 placeholder={
-                  showSystemLogs 
+                  showSystemLogs
                     ? "Click 'System Logs' to load system logs..."
-                    : selectedContainer 
+                    : selectedContainer
                       ? "Click 'Fetch Logs' to load container logs..."
                       : "Select a container to view its logs..."
                 }
@@ -454,7 +454,7 @@ const Logs = () => {
             {(logs || systemLogs) && (
               <div className="mt-4 text-sm text-gray-500">
                 <p>
-                  {showSystemLogs 
+                  {showSystemLogs
                     ? `System logs loaded • ${systemLogs.split('\n').length} lines`
                     : `Container logs loaded • ${logs.split('\n').length} lines`}
                   {streaming && !showSystemLogs && " • Live streaming"}
@@ -468,4 +468,4 @@ const Logs = () => {
   );
 };
 
-export default Logs; 
+export default Logs;

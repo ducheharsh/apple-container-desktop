@@ -16,14 +16,14 @@ const Images = () => {
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const result = await invoke('run_container_command', { args: ['images', 'ls'] });
-      
+      const result = await invoke('run_container_command', { args: ['image', 'ls'] });
+
       if (result.success) {
         // Parse the output to create a basic list (Apple Container format: NAME TAG DIGEST)
         console.log('Raw images output:', result.stdout);
         const lines = result.stdout.trim().split('\n').filter(line => line && !line.startsWith('NAME'));
         console.log('Filtered lines:', lines);
-        
+
         const imageList = lines.map((line, index) => {
           const parts = line.split(/\s+/);
           const imageData = {
@@ -36,7 +36,7 @@ const Images = () => {
           console.log(`Image ${index}:`, imageData);
           return imageData;
         });
-        
+
         console.log('Final image list:', imageList);
         setImages(imageList);
         setCommandResult(null); // Clear any previous errors
@@ -65,10 +65,10 @@ const Images = () => {
   const handleImageAction = async (action, imageName) => {
     try {
       setActionLoading(`${imageName}-${action}`);
-      const args = ['images', action === 'delete' ? 'delete' : action, imageName];
+      const args = ['image', action === 'delete' ? 'delete' : action, imageName];
       const result = await invoke('run_container_command', { args });
       setCommandResult(result);
-      
+
       if (result.success && action === 'delete') {
         await fetchImages();
       }
@@ -92,9 +92,9 @@ const Images = () => {
 
     try {
       setActionLoading('pull');
-      const result = await invoke('run_container_command', { args: ['images', 'pull', pullImageName] });
+      const result = await invoke('run_container_command', { args: ['image', 'pull', pullImageName] });
       setCommandResult(result);
-      
+
       if (result.success) {
         setPullImageName('');
         setShowPullForm(false);
@@ -120,11 +120,11 @@ const Images = () => {
 
     try {
       setActionLoading('tag');
-      const result = await invoke('run_container_command', { 
-        args: ['images', 'tag', tagData.sourceImage, tagData.targetTag] 
+      const result = await invoke('run_container_command', {
+        args: ['image', 'tag', tagData.sourceImage, tagData.targetTag]
       });
       setCommandResult(result);
-      
+
       if (result.success) {
         setTagData({ sourceImage: '', targetTag: '' });
         setShowTagForm(false);
@@ -268,8 +268,8 @@ const Images = () => {
       )}
 
       {commandResult && (
-        <CommandOutput 
-          result={commandResult} 
+        <CommandOutput
+          result={commandResult}
           title="Last Action Result"
         />
       )}
@@ -278,7 +278,7 @@ const Images = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Images ({images.length})
         </h2>
-        
+
         {images.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Image className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -343,4 +343,4 @@ const Images = () => {
   );
 };
 
-export default Images; 
+export default Images;

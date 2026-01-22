@@ -7,7 +7,7 @@ import { runContainerCommandWithStatusCheck } from '../utils/containerUtils';
 
 const RunContainer = () => {
   const { showSuccess, showError } = useToast();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     image: '',
@@ -37,7 +37,7 @@ const RunContainer = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.image || !formData.image.trim()) {
       alert('Please specify an image name');
       return;
@@ -144,15 +144,15 @@ const RunContainer = () => {
       const validArgs = args.map(arg => String(arg)).filter(arg => arg.length > 0);
 
       const commandResult = await runContainerCommandWithStatusCheck(
-        invoke, 
-        validArgs, 
+        invoke,
+        validArgs,
         showError
       );
       setResult(commandResult);
 
       if (commandResult.success) {
         showSuccess(`Container started successfully!`, 5000);
-        
+
         // Reset form on success
         setFormData({
           name: '',
@@ -204,8 +204,8 @@ const RunContainer = () => {
           <div>
             <h3 className="text-sm font-medium text-blue-900">Apple Container Networking</h3>
             <p className="text-sm text-blue-700 mt-1">
-              Apple containers don't support Docker-style port mapping (<code>-p</code> or <code>--publish</code>). 
-              Instead, each container gets its own dedicated IP address that you can access directly from your Mac. 
+              Apple containers don't support Docker-style port mapping (<code>-p</code> or <code>--publish</code>).
+              Instead, each container gets its own dedicated IP address that you can access directly from your Mac.
               After starting a container, check its IP address using <code>container ls</code> and connect directly to that IP.
             </p>
             <p className="text-sm text-blue-700 mt-2">
@@ -344,7 +344,7 @@ const RunContainer = () => {
               <Cpu className="h-5 w-5 mr-2" />
               Resource Limits
             </h2>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -487,8 +487,8 @@ const RunContainer = () => {
           </button>
 
           {/* Command Output */}
-          <CommandOutput 
-            result={result} 
+          <CommandOutput
+            result={result}
             loading={loading}
             title="Container Run Result"
           />
@@ -498,4 +498,4 @@ const RunContainer = () => {
   );
 };
 
-export default RunContainer; 
+export default RunContainer;

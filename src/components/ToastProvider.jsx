@@ -17,7 +17,7 @@ export const ToastProvider = ({ children }) => {
   const showToast = useCallback((message, type = 'info', duration = 5000) => {
     const id = Date.now() + Math.random();
     const toast = { id, message, type, duration };
-    
+
     setToasts(prev => [...prev, toast]);
 
     return id;
@@ -74,4 +74,4 @@ export const ToastProvider = ({ children }) => {
       </div>
     </ToastContext.Provider>
   );
-}; 
+};

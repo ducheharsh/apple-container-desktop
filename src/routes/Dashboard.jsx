@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Link } from 'react-router-dom';
-import { 
-  Container, 
-  Play, 
-  Square, 
-  RotateCcw, 
-  Trash2, 
-  FileText, 
-  RefreshCw 
+import {
+  Container,
+  Play,
+  Square,
+  RotateCcw,
+  Trash2,
+  FileText,
+  RefreshCw
 } from 'lucide-react';
 import CommandOutput from '../components/CommandOutput';
 
@@ -23,7 +23,7 @@ const Dashboard = () => {
       setLoading(true);
       const result = await invoke('get_container_status');
       console.log('Raw container data:', result);
-      
+
       // Transform Apple Container JSON to our expected format
       const transformedContainers = result.map(container => ({
         id: container.configuration?.id || 'Unknown',
@@ -35,7 +35,7 @@ const Dashboard = () => {
         Ports: container.networks?.map(net => net.address).join(', ') || '-',
         networks: container.networks || []
       }));
-      
+
       console.log('Transformed containers:', transformedContainers);
       setContainers(transformedContainers);
       setCommandResult(null); // Clear any previous errors
@@ -75,7 +75,7 @@ const Dashboard = () => {
       const args = [String(action), String(containerName)];
       const result = await invoke('run_container_command', { args });
       setCommandResult(result);
-      
+
       if (result.success) {
         await fetchContainers();
       }
@@ -148,8 +148,8 @@ const Dashboard = () => {
       </div>
 
       {commandResult && (
-        <CommandOutput 
-          result={commandResult} 
+        <CommandOutput
+          result={commandResult}
           title="Last Action Result"
         />
       )}
@@ -158,7 +158,7 @@ const Dashboard = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Containers ({containers.length})
         </h2>
-        
+
         {containers.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Container className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -271,4 +271,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

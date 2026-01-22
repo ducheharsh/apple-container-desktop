@@ -33,7 +33,7 @@ fn find_container_cli() -> Result<String, String> {
         "/usr/bin/container",
         "container", // Fallback to PATH
     ];
-    
+
     for path in paths {
         if path == "container" {
             // Try using PATH for the fallback
@@ -53,14 +53,14 @@ fn find_container_cli() -> Result<String, String> {
             }
         }
     }
-    
+
     Err("Apple Container CLI not found. Please install it from https://github.com/apple/container/releases".to_string())
 }
 
 #[tauri::command]
 async fn run_container_command(args: Vec<String>) -> Result<CommandResult, String> {
     let container_cli = find_container_cli()?;
-    
+
     let output = Command::new(&container_cli)
         .args(&args)
         .output()
@@ -80,7 +80,7 @@ async fn run_container_command(args: Vec<String>) -> Result<CommandResult, Strin
 async fn run_container_command_with_stdin(args: Vec<String>, stdin: String) -> Result<CommandResult, String> {
     use std::process::Stdio;
     use std::io::Write;
-    
+
     let container_cli = find_container_cli()?;
 
     let mut child = Command::new(&container_cli)
@@ -119,7 +119,7 @@ async fn stream_container_logs(
 ) -> Result<String, String> {
     let stream_id = format!("logs_{}", container_name);
     let active_streams: ActiveStreams = app_handle.state::<ActiveStreams>().inner().clone();
-    
+
     // Mark stream as active
     {
         let mut streams = active_streams.lock().unwrap();
@@ -226,7 +226,7 @@ async fn stop_log_stream(app_handle: AppHandle, stream_id: String) -> Result<(),
 #[tauri::command]
 async fn get_container_status() -> Result<Vec<serde_json::Value>, String> {
     let container_cli = find_container_cli()?;
-    
+
     let output = Command::new(&container_cli)
         .args(&["ls", "-a", "--format", "json"])
         .output()
@@ -237,7 +237,7 @@ async fn get_container_status() -> Result<Vec<serde_json::Value>, String> {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Apple Container CLI returns a JSON array, not newline-delimited JSON
     match serde_json::from_str::<Vec<serde_json::Value>>(&stdout) {
         Ok(containers) => Ok(containers),

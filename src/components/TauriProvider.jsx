@@ -18,7 +18,7 @@ export const TauriProvider = ({ children }) => {
     const checkTauri = () => {
       try {
         // Check if we're in a Tauri environment
-        const available = typeof window !== 'undefined' && 
+        const available = typeof window !== 'undefined' &&
                          window.__TAURI_INTERNALS__ !== undefined;
         setIsTauriAvailable(available);
       } catch (error) {
@@ -63,7 +63,7 @@ export const TauriProvider = ({ children }) => {
               </ol>
             </div>
           </div>
-          
+
           <div className="text-sm text-gray-600">
             <p className="mb-2">Current status: <code>npm run tauri:dev</code> is running</p>
             <p>🔄 Compiling Rust backend...</p>
@@ -78,4 +78,4 @@ export const TauriProvider = ({ children }) => {
       {children}
     </TauriContext.Provider>
   );
-}; 
+};
