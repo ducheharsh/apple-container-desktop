@@ -133,7 +133,7 @@ const BuildImage = () => {
       }
 
       // Push the image
-      const pushArgs = ['images', 'push', formData.tag];
+      const pushArgs = ['image', 'push', formData.tag];
       const pushResult = await invoke('run_container_command', { args: pushArgs });
 
       setResult(prev => ({
